@@ -17,7 +17,8 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
   const notesPerPage = 5
 
   useEffect(() => {
-    const channel = 'databases.notesApp.collections.notes.documents'
+    const channel = `databases.${process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID}.collections.${process.env.NEXT_PUBLIC_APPWRITE_COLLECTION_ID}.documents`
+
     const unsubscribe = client.subscribe(channel, (response) => {
       const eventType = response.events[0]
       const changedNote = response.payload as Note
