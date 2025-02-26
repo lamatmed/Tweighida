@@ -18,4 +18,4 @@ const client = new Client().setEndpoint(endpoint).setProject(project);
 const databases = new Databases(client);
 const storage = new Storage(client);
 
-export { client, databases, storage, databaseId, collectionId, bucketId };
+export { client, databases, storage };
