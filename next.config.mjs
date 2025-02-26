@@ -7,6 +7,7 @@ const nextConfig = {
         NEXT_PUBLIC_APPWRITE_COLLECTION_ID: process.env.NEXT_PUBLIC_APPWRITE_COLLECTION_ID,
         NEXT_PUBLIC_APPWRITE_BUCKET_ID: process.env.NEXT_PUBLIC_APPWRITE_BUCKET_ID,
     },
+    reactStrictMode: true,
 };
 
 export default nextConfig;
