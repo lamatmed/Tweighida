@@ -5,7 +5,7 @@ export default function Hero() {
           <h1 className="text-4xl md:text-5xl font-extrabold mb-4">
             Bienvenue sur <span className="text-yellow-300">NotesApp</span> 📓
           </h1>
-          <p className="text-lg md:text-xl mb-6">
+          <p className="text-lg md:text-xl mb-7">
             Gérez vos notes facilement et efficacement. Ajoutez, modifiez et supprimez vos notes en toute simplicité.
           </p>
           <a
