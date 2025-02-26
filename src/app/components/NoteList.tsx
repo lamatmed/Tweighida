@@ -40,7 +40,7 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
     })
 
     return () => unsubscribe()
-  }, [])
+  }, [notes])
 
   const handleDelete = async (noteId: string) => {
     if (!window.confirm('Voulez-vous vraiment supprimer cette note ?')) return
