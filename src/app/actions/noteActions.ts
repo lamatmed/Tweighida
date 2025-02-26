@@ -7,6 +7,7 @@ export async function addNote(formData: FormData): Promise<Note> {
     const pdfFile = formData.get("pdf") as File | null;
 
     let pdfurl: string | null = null;
+   
     console.log("Fichier sélectionné :", pdfFile);
 
     if (pdfFile) {
