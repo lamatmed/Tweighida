@@ -10,30 +10,31 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
   const [updatedTitle, setUpdatedTitle] = useState<string>('')
   const [loadingUpdate, setLoadingUpdate] = useState<string | null>(null)
   const [loadingDelete, setLoadingDelete] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true) // Indicateur de chargement
 
   // Pagination et recherche
   const [searchQuery, setSearchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const notesPerPage = 5
 
-  // Rafraîchir les notes toutes les 5 secondes
   useEffect(() => {
     const fetchNotes = async () => {
       try {
+        
         const updatedNotes = await getNotesFromAppwrite()
         setNotes(updatedNotes)
       } catch (error) {
         console.error('Erreur lors du rafraîchissement des notes:', error)
+      } finally {
+        setLoading(false)
       }
     }
 
-    fetchNotes() // Chargement initial
-    const interval = setInterval(fetchNotes, 5000) // Rafraîchit toutes les 5s
-
+    fetchNotes()
+    const interval = setInterval(fetchNotes, 5000)
     return () => clearInterval(interval)
   }, [])
 
-  // Écoute des mises à jour en temps réel avec Appwrite
   useEffect(() => {
     const channel = `databases.${process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID}.collections.${process.env.NEXT_PUBLIC_APPWRITE_COLLECTION_ID}.documents`
 
@@ -42,17 +43,9 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
       const changedNote = response.payload as Note
 
       setNotes((prevNotes) => {
-        if (eventType.includes('create')) {
-          return [changedNote, ...prevNotes]
-        }
-        if (eventType.includes('update')) {
-          return prevNotes.map((note) =>
-            note.$id === changedNote.$id ? changedNote : note
-          )
-        }
-        if (eventType.includes('delete')) {
-          return prevNotes.filter((note) => note.$id !== changedNote.$id)
-        }
+        if (eventType.includes('create')) return [changedNote, ...prevNotes]
+        if (eventType.includes('update')) return prevNotes.map((note) => (note.$id === changedNote.$id ? changedNote : note))
+        if (eventType.includes('delete')) return prevNotes.filter((note) => note.$id !== changedNote.$id)
         return prevNotes
       })
     })
@@ -68,7 +61,7 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
       await deleteNote(noteId)
       setNotes((prevNotes) => prevNotes.filter((note) => note.$id !== noteId))
     } catch (error) {
-      console.error('Erreur lors de la suppression de la note:', error)
+      console.error('Erreur lors de la suppression:', error)
     } finally {
       setLoadingDelete(null)
     }
@@ -84,142 +77,116 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
       setUpdatedContent('')
       setUpdatedTitle('')
     } catch (error) {
-      console.error('Erreur lors de la mise à jour de la note:', error)
+      console.error('Erreur lors de la mise à jour:', error)
     } finally {
       setLoadingUpdate(null)
     }
   }
 
-  // Filtrage des notes selon la recherche
-  const filteredNotes = notes.filter((note) =>
-    note.title.toLowerCase().includes(searchQuery.toLowerCase())
-  )
-
-  // Pagination
+  const filteredNotes = notes.filter((note) => note.title.toLowerCase().includes(searchQuery.toLowerCase()))
   const totalPages = Math.ceil(filteredNotes.length / notesPerPage)
-  const displayedNotes = filteredNotes.slice(
-    (currentPage - 1) * notesPerPage,
-    currentPage * notesPerPage
-  )
+  const displayedNotes = filteredNotes.slice((currentPage - 1) * notesPerPage, currentPage * notesPerPage)
 
   return (
-    <div className="max-w-md mx-auto mt-5 p-4 bg-gray-100 rounded-lg shadow-md">
+    <div className="max-w-md mx-auto mt-5 p-4 bg-white rounded-lg shadow-md">
       <h2 className="text-lg font-semibold text-gray-700 text-center">
-      Total de Classificações : {notes.length}
+        Total de Classificações : {notes.length}
       </h2>
 
-      {/* Champ de recherche */}
       <input
         type="text"
-        placeholder="Procurar uma nota..."
+        placeholder="Investigação..."
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         className="w-full p-2 border rounded-md my-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
 
-      {/* Liste des notes */}
-      <ul className="space-y-4">
-        {displayedNotes.length > 0 ? (
-          displayedNotes.map((note) => (
-            <li key={note.$id} className="p-3 bg-white rounded-lg shadow">
-              {editingNote === note.$id ? (
-                <>
-                  <input
-                    type="text"
-                    value={updatedTitle}
-                    onChange={(e) => setUpdatedTitle(e.target.value)}
-                    className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
-                    placeholder="Alterar título"
-                  />
-                  <input
-                    type="text"
-                    value={updatedContent}
-                    onChange={(e) => setUpdatedContent(e.target.value)}
-                    className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Editar conteúdo"
-                  />
-                </>
-              ) : (
-                <>
-                  <h3 className="text-lg font-bold text-gray-800">{note.title}</h3>
-                  <p className="text-gray-700">{note.content}</p>
-                  {note.pdfurl && (
-                    <a
-                      href={note.pdfurl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block mt-2 text-blue-500 underline hover:text-blue-700"
-                    >
-                      Descarregar o ficheiro PDF
-                    </a>
-                  )}
-                </>
-              )}
-              <div className="flex gap-2 mt-2">
-                <button
-                  onClick={() => handleDelete(note.$id)}
-                  className={`px-3 py-1 rounded text-white transition ${
-                    loadingDelete === note.$id
-                      ? 'bg-gray-400 cursor-not-allowed'
-                      : 'bg-red-500 hover:bg-red-600'
-                  }`}
-                  disabled={loadingDelete === note.$id}
-                >
-                  {loadingDelete === note.$id ? 'Supressão...' : 'Suprimir'}
-                </button>
+      {loading ? (
+        <p className="text-center text-gray-500">Carregar...</p>
+      ) : (
+        <ul className="space-y-4">
+          {displayedNotes.length > 0 ? (
+            displayedNotes.map((note) => (
+              <li key={note.$id} className="p-3 bg-gray-50 rounded-lg shadow">
                 {editingNote === note.$id ? (
-                  <button
-                    onClick={() => handleUpdate(note.$id)}
-                    className={`px-3 py-1 rounded text-white transition ${
-                      loadingUpdate === note.$id
-                        ? 'bg-gray-400 cursor-not-allowed'
-                        : 'bg-green-500 hover:bg-green-600'
-                    }`}
-                    disabled={loadingUpdate === note.$id}
-                  >
-                    {loadingUpdate === note.$id
-                      ? 'Fazer Check-in...'
-                      : 'Recorde'}
-                  </button>
+                  <>
+                    <input
+                      type="text"
+                      value={updatedTitle}
+                      onChange={(e) => setUpdatedTitle(e.target.value)}
+                      className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
+                      placeholder="Alterar título"
+                    />
+                    <input
+                      type="text"
+                      value={updatedContent}
+                      onChange={(e) => setUpdatedContent(e.target.value)}
+                      className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Editar conteúdo"
+                    />
+                  </>
                 ) : (
-                  <button
-                    onClick={() => {
-                      setEditingNote(note.$id)
-                      setUpdatedTitle(note.title)
-                      setUpdatedContent(note.content)
-                    }}
-                    className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-                  >
-                   Modificar
-                  </button>
+                  <>
+                    <h3 className="text-lg font-bold text-gray-800">{note.title}</h3>
+                    <p className="text-gray-700">{note.content}</p>
+                    {note.pdfurl && (
+                      <a href={note.pdfurl} target="_blank" rel="noopener noreferrer" className="block mt-2 text-blue-500 underline hover:text-blue-700">
+                       Descarregar o ficheiro PDF
+                      </a>
+                    )}
+                  </>
                 )}
-              </div>
-            </li>
-          ))
-        ) : (
-          <p className="text-center text-gray-500">Não há notas disponíveis.</p>
-        )}
-      </ul>
+                <div className="flex gap-2 mt-2">
+                  <button
+                    onClick={() => handleDelete(note.$id)}
+                    className={`px-3 py-1 rounded text-white transition ${
+                      loadingDelete === note.$id ? 'bg-gray-400 cursor-not-allowed' : 'bg-red-500 hover:bg-red-600'
+                    }`}
+                    disabled={loadingDelete === note.$id}
+                  >
+                    {loadingDelete === note.$id ? 'Supressão...' : 'Suprimir'}
+                  </button>
+                  {editingNote === note.$id ? (
+                    <button
+                      onClick={() => handleUpdate(note.$id)}
+                      className={`px-3 py-1 rounded text-white transition ${
+                        loadingUpdate === note.$id ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-500 hover:bg-green-600'
+                      }`}
+                      disabled={loadingUpdate === note.$id}
+                    >
+                      {loadingUpdate === note.$id ? 'Atualizar...' : 'Recorde'}
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        setEditingNote(note.$id)
+                        setUpdatedTitle(note.title)
+                        setUpdatedContent(note.content)
+                      }}
+                      className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                    >
+                      Modificar
+                    </button>
+                  )}
+                </div>
+              </li>
+            ))
+          ) : (
+            <p className="text-center text-gray-500">Não há notas disponíveis.</p>
+          )}
+        </ul>
+      )}
 
-      {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex justify-center items-center gap-2 mt-4">
-          <button
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-            className="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400 disabled:opacity-50"
-          >
-           Anterior
+          <button onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))} disabled={currentPage === 1} className="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400 disabled:opacity-50">
+          Anterior
           </button>
           <span className="text-gray-700">
           Página {currentPage} / {totalPages}
           </span>
-          <button
-            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-            disabled={currentPage === totalPages}
-            className="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400 disabled:opacity-50"
-          >
-            Seguinte
+          <button onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} className="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400 disabled:opacity-50">
+          Seguinte
           </button>
         </div>
       )}
