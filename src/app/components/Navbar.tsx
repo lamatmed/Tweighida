@@ -1,3 +1,4 @@
+'use client'
 import { useState } from "react";
 import { Menu, X } from "lucide-react"; // Icônes pour le menu mobile
 
