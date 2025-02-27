@@ -6,7 +6,7 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <nav className="bg-gray-600 text-white p-3 shadow-md">
+    <nav className="bg-sky-500 text-white p-3 shadow-md">
       <div className="max-w-4xl mx-auto flex justify-between items-center">
         <h1 className="text-xl font-bold">TWEYIGHIDA COMERCIAL LDA</h1>
 

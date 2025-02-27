@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState } from "react";
+import Loader from "../components/Loader";
 
 export default function About() {
   const [loading, setLoading] = useState(true);
@@ -12,9 +13,7 @@ export default function About() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin h-10 w-10 border-t-4 border-blue-500 rounded-full"></div>
-      </div>
+      <Loader/>
     );
   }
 
