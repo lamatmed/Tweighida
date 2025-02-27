@@ -102,7 +102,9 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
       />
 
       {loading ? (
-        <p className="text-center text-gray-500">Carregar...</p>
+        <div className="flex justify-center items-center ">
+        <div className="animate-spin h-10 w-10 border-t-4 border-blue-500 rounded-full"></div>
+      </div>
       ) : (
         <ul className="space-y-4">
           {displayedNotes.length > 0 ? (
