@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { deleteNote, updateNote } from '../actions/noteActions'
+import { deleteNote, updateNote, getNotesFromAppwrite } from '../actions/noteActions'
 import { client } from '@/utils/appwrite'
 
 export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
@@ -16,6 +16,24 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
   const [currentPage, setCurrentPage] = useState(1)
   const notesPerPage = 5
 
+  // Rafraîchir les notes toutes les 5 secondes
+  useEffect(() => {
+    const fetchNotes = async () => {
+      try {
+        const updatedNotes = await getNotesFromAppwrite()
+        setNotes(updatedNotes)
+      } catch (error) {
+        console.error('Erreur lors du rafraîchissement des notes:', error)
+      }
+    }
+
+    fetchNotes() // Chargement initial
+    const interval = setInterval(fetchNotes, 5000) // Rafraîchit toutes les 5s
+
+    return () => clearInterval(interval)
+  }, [])
+
+  // Écoute des mises à jour en temps réel avec Appwrite
   useEffect(() => {
     const channel = `databases.${process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID}.collections.${process.env.NEXT_PUBLIC_APPWRITE_COLLECTION_ID}.documents`
 
@@ -40,7 +58,7 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
     })
 
     return () => unsubscribe()
-  }, [notes])
+  }, [])
 
   const handleDelete = async (noteId: string) => {
     if (!window.confirm('Voulez-vous vraiment supprimer cette note ?')) return
@@ -61,7 +79,7 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
 
     try {
       setLoadingUpdate(noteId)
-      await updateNote(noteId, updatedContent,updatedTitle)
+      await updateNote(noteId, updatedContent, updatedTitle)
       setEditingNote(null)
       setUpdatedContent('')
       setUpdatedTitle('')
@@ -126,17 +144,15 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
                   <h3 className="text-lg font-bold text-gray-800">{note.title}</h3>
                   <p className="text-gray-700">{note.content}</p>
                   {note.pdfurl && (
-  <a
-    href={note.pdfurl}
-    target="_blank"
-    rel="noopener noreferrer"
-    className="block mt-2 text-blue-500 underline hover:text-blue-700"
-  >
-    Télécharger le PDF
-  </a>
-)}
-
-               
+                    <a
+                      href={note.pdfurl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block mt-2 text-blue-500 underline hover:text-blue-700"
+                    >
+                      Télécharger le PDF
+                    </a>
+                  )}
                 </>
               )}
               <div className="flex gap-2 mt-2">

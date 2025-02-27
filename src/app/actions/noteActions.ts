@@ -57,7 +57,7 @@ export async function addNote(formData: FormData): Promise<Note> {
     }
 }
 
-export async function getNotes(): Promise<Note[]> {
+export async function getNotesFromAppwrite(): Promise<Note[]> {
     try {
         const response = await databases.listDocuments(databaseId, collectionId);
         console.log(response.documents);
@@ -74,6 +74,7 @@ export async function getNotes(): Promise<Note[]> {
         return [];
     }
 }
+
 
 export async function deleteNote(noteId: string) {
     try {
