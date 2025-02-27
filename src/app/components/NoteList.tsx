@@ -20,7 +20,7 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
   useEffect(() => {
     const fetchNotes = async () => {
       try {
-        setLoading(true)
+       
         const updatedNotes = await getNotesFromAppwrite()
         setNotes(updatedNotes)
       } catch (error) {
