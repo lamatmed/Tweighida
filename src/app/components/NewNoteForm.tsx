@@ -14,7 +14,7 @@ const NewNoteForm = () => {
     if (file && file.type === "application/pdf") {
       setPdfFile(file)
     } else {
-      alert("Veuillez sélectionner un fichier PDF valide.")
+      alert("Selecione um ficheiro PDF válido.")
       e.target.value = "" // Réinitialise le champ
     }
   }
@@ -49,7 +49,7 @@ const NewNoteForm = () => {
           onClick={() => setShowForm(true)}
           className="w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition"
         >
-          Ajouter une note
+         Adicionar uma nota
         </button>
       )}
 
@@ -59,14 +59,14 @@ const NewNoteForm = () => {
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Titre"
+            placeholder="Títuloe"
             className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
 
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder="Écris ta note ici..."
+            placeholder="Escreva a sua nota aqui..."
             className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none h-24"
           />
 
@@ -87,7 +87,7 @@ const NewNoteForm = () => {
               }`}
               disabled={loading}
             >
-              {loading ? 'Ajout en cours...' : 'Ajouter'}
+              {loading ? 'Adicionando ...' : 'Adicionar'}
             </button>
 
             <button
@@ -95,7 +95,7 @@ const NewNoteForm = () => {
               onClick={() => setShowForm(false)}
               className="px-4 py-2 rounded-md bg-gray-300 hover:bg-gray-400 transition"
             >
-              Annuler
+             Cancelar
             </button>
           </div>
         </form>

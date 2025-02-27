@@ -29,9 +29,9 @@ export default function Navbar() {
       {/* Menu Mobile */}
       {isOpen && (
         <ul className="lg:hidden flex flex-col items-center space-y-3 mt-3">
-          <li><a href="/" className="hover:underline" onClick={() => setIsOpen(false)}>Accueil</a></li>
-          <li><a href="/notes" className="hover:underline" onClick={() => setIsOpen(false)}>Notes</a></li>
-          <li><a href="/about" className="hover:underline" onClick={() => setIsOpen(false)}>À propos</a></li>
+          <li><a href="/" className="hover:underline" onClick={() => setIsOpen(false)}>Receção</a></li>
+          <li><a href="/notes" className="hover:underline" onClick={() => setIsOpen(false)}>Observações</a></li>
+          <li><a href="/about" className="hover:underline" onClick={() => setIsOpen(false)}>A propósito</a></li>
         </ul>
       )}
     </nav>

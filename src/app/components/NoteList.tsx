@@ -61,7 +61,7 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
   }, [])
 
   const handleDelete = async (noteId: string) => {
-    if (!window.confirm('Voulez-vous vraiment supprimer cette note ?')) return
+    if (!window.confirm('Tem a certeza de que pretende eliminar esta nota?')) return
 
     try {
       setLoadingDelete(noteId)
@@ -105,13 +105,13 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
   return (
     <div className="max-w-md mx-auto mt-5 p-4 bg-gray-100 rounded-lg shadow-md">
       <h2 className="text-lg font-semibold text-gray-700 text-center">
-        Nombre total de notes : {notes.length}
+      Total de Classificações : {notes.length}
       </h2>
 
       {/* Champ de recherche */}
       <input
         type="text"
-        placeholder="Rechercher une note..."
+        placeholder="Procurar uma nota..."
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         className="w-full p-2 border rounded-md my-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -129,14 +129,14 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
                     value={updatedTitle}
                     onChange={(e) => setUpdatedTitle(e.target.value)}
                     className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
-                    placeholder="Modifier le titre"
+                    placeholder="Alterar título"
                   />
                   <input
                     type="text"
                     value={updatedContent}
                     onChange={(e) => setUpdatedContent(e.target.value)}
                     className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Modifier le contenu"
+                    placeholder="Editar conteúdo"
                   />
                 </>
               ) : (
@@ -150,7 +150,7 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
                       rel="noopener noreferrer"
                       className="block mt-2 text-blue-500 underline hover:text-blue-700"
                     >
-                      Télécharger le PDF
+                      Descarregar o ficheiro PDF
                     </a>
                   )}
                 </>
@@ -165,7 +165,7 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
                   }`}
                   disabled={loadingDelete === note.$id}
                 >
-                  {loadingDelete === note.$id ? 'Suppression...' : 'Supprimer'}
+                  {loadingDelete === note.$id ? 'Supressão...' : 'Suprimir'}
                 </button>
                 {editingNote === note.$id ? (
                   <button
@@ -178,8 +178,8 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
                     disabled={loadingUpdate === note.$id}
                   >
                     {loadingUpdate === note.$id
-                      ? 'Enregistrement...'
-                      : 'Enregistrer'}
+                      ? 'Fazer Check-in...'
+                      : 'Recorde'}
                   </button>
                 ) : (
                   <button
@@ -190,14 +190,14 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
                     }}
                     className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
                   >
-                    Modifier
+                   Modificar
                   </button>
                 )}
               </div>
             </li>
           ))
         ) : (
-          <p className="text-center text-gray-500">Aucune note disponible.</p>
+          <p className="text-center text-gray-500">Não há notas disponíveis.</p>
         )}
       </ul>
 
@@ -209,17 +209,17 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
             disabled={currentPage === 1}
             className="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400 disabled:opacity-50"
           >
-            Précédent
+           Anterior
           </button>
           <span className="text-gray-700">
-            Page {currentPage} / {totalPages}
+          Página {currentPage} / {totalPages}
           </span>
           <button
             onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
             disabled={currentPage === totalPages}
             className="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400 disabled:opacity-50"
           >
-            Suivant
+            Seguinte
           </button>
         </div>
       )}

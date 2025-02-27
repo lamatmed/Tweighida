@@ -1,24 +1,24 @@
 export default function About() {
     return (
       <div className="max-w-3xl mx-auto p-6 bg-white shadow-md rounded-lg mt-10">
-        <h1 className="text-3xl font-bold text-blue-600 mb-4">À propos de NotesApp</h1>
+        <h1 className="text-3xl font-bold text-blue-600 mb-4">Sobre nós NotesApp</h1>
         <p className="text-gray-700 leading-relaxed">
-          NotesApp est une application simple et intuitive qui vous permet de gérer vos notes en toute simplicité. 
-          Notre objectif est de vous offrir une interface fluide et rapide pour organiser vos idées efficacement.
+        NotesApp é um aplicativo simples e intuitivo que permite que você gerencie suas anotações com facilidade.
+        O nosso objetivo é fornecer-lhe uma interface suave e rápida para organizar as suas ideias de forma eficiente.
         </p>
-        <h2 className="text-2xl font-semibold text-gray-800 mt-6">📌 Fonctionnalités :</h2>
+        <h2 className="text-2xl font-semibold text-gray-800 mt-6">📌 Caraterísticas :</h2>
         <ul className="list-disc list-inside text-gray-600 mt-2">
-          <li>Ajouter, modifier et supprimer des notes en temps réel.</li>
-          <li>Interface moderne et responsive.</li>
-          <li>Stockage sécurisé et synchronisation automatique.</li>
+          <li>Adicionar, editar e eliminar notas em tempo real.</li>
+          <li>Interface moderna e responsiva.</li>
+          <li>Armazenamento seguro e sincronização automática.</li>
         </ul>
-        <h2 className="text-2xl font-semibold text-gray-800 mt-6">💡 Pourquoi utiliser NotesApp ?</h2>
+        <h2 className="text-2xl font-semibold text-gray-800 mt-6">💡 Porquê utilizar o NotesApp?</h2>
         <p className="text-gray-700 mt-2">
-          Nous avons conçu cette application pour vous permettre de prendre des notes rapidement et les retrouver facilement.
-          Plus besoin de chercher partout, vos idées sont toujours accessibles !
+        Nós projetamos este aplicativo para permitir que você tome notas rapidamente e encontrá-los facilmente.
+        Não precisa de procurar em todo o lado, as suas ideias estão sempre acessíveis!
         </p>
         <div className="mt-6">
-          <a href="/" className="text-blue-500 hover:underline">Retour à l'accueil</a>
+          <a href="/" className="text-blue-500 hover:underline">Voltar à página inicial</a>
         </div>
       </div>
     )
