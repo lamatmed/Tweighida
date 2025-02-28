@@ -2,6 +2,9 @@
 import { useEffect, useState } from 'react'
 import { deleteNote, updateNote, getNotesFromAppwrite } from '../actions/noteActions'
 import { client } from '@/utils/appwrite'
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
+
 
 export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
   const [notes, setNotes] = useState<Note[]>(initialNotes)
@@ -89,15 +92,50 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
   const totalPages = Math.ceil(filteredNotes.length / notesPerPage)
   const displayedNotes = filteredNotes.slice((currentPage - 1) * notesPerPage, currentPage * notesPerPage)
 
+
+const generatePDF = () => {
+    const doc = new jsPDF();
+    doc.text('Tabela de Notas', 14, 10);
+
+    const tableData = filteredNotes.map((note) => [
+      note.title,
+      `${note.venda} KZ`,
+      note.content,
+      `${(note.venda * 0.07).toFixed(2)} KZ`
+    ]);
+
+    const totalVenda = filteredNotes.reduce((sum, note) => sum + note.venda, 0);
+    const total7Percent = totalVenda * 0.07;
+
+    autoTable(doc, {  
+      head: [['Selo', 'Venda', 'localização', '7% de Venda']],
+      body: tableData,
+      startY: 20,
+    });
+
+    const finalY = (doc as any).lastAutoTable.finalY || 20; // Récupération correcte de la position finale
+
+    doc.text(`Total de Vendas: ${totalVenda.toFixed(2)} KZ`, 14, finalY + 10);
+    doc.text(`Total 7% de Vendas: ${total7Percent.toFixed(2)} KZ`, 14, finalY + 20);
+    doc.text(`Total de Classificações: ${filteredNotes.length}`, 14, finalY + 30);
+
+    doc.save('notes.pdf');
+};
+
   return (
     <div className="max-w-md mx-auto mt-5 p-4 bg-white rounded-lg shadow-md">
       <h2 className="text-lg font-semibold text-gray-700 text-center">
         Total de Classificações : {notes.length}
       </h2>
-
+      <button
+        onClick={generatePDF}
+        className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+      >
+        Gerar Mapa de Classificações PDF
+      </button>
       <input
         type="text"
-        placeholder="Investigação..."
+        placeholder="Numero Selo"
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         className="w-full p-2 border rounded-md my-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
