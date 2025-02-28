@@ -20,7 +20,7 @@ export default function About() {
   return (
     <div className="max-w-md md:max-w-4xl mx-auto p-6 md:p-12 bg-white shadow-md rounded-lg mt-10 md:mt-16">
       <h1 className="text-3xl md:text-4xl font-bold text-blue-600 mb-4">
-        Sobre nós NotesApp
+        Sobre nós NotesApp v1
       </h1>
       <p className="text-gray-700 leading-relaxed">
         NotesApp é um aplicativo simples e intuitivo que permite que você gerencie suas anotações com facilidade.
