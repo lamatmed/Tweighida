@@ -3,5 +3,6 @@ interface Note {
   $createdAt: string
   content: string
   title: string
+  venda: number
   pdfurl: string
 }

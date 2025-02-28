@@ -8,6 +8,7 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
   const [editingNote, setEditingNote] = useState<string | null>(null)
   const [updatedContent, setUpdatedContent] = useState<string>('')
   const [updatedTitle, setUpdatedTitle] = useState<string>('')
+  const [updatedVenda, setUpdatedVenda] = useState<number>(0)
   const [loadingUpdate, setLoadingUpdate] = useState<string | null>(null)
   const [loadingDelete, setLoadingDelete] = useState<string | null>(null)
   const [loading, setLoading] = useState(true) // Indicateur de chargement
@@ -72,9 +73,10 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
 
     try {
       setLoadingUpdate(noteId)
-      await updateNote(noteId, updatedContent, updatedTitle)
+      await updateNote(noteId, updatedContent, updatedTitle,updatedVenda)
       setEditingNote(null)
       setUpdatedContent('')
+      setUpdatedVenda(0)
       setUpdatedTitle('')
     } catch (error) {
       console.error('Erreur lors de la mise à jour:', error)
@@ -113,23 +115,32 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
                 {editingNote === note.$id ? (
                   <>
                     <input
-                      type="text"
+                      type="number"
                       value={updatedTitle}
                       onChange={(e) => setUpdatedTitle(e.target.value)}
                       className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
-                      placeholder="Alterar título"
+                      placeholder="Selo"
+                    />
+
+                  <input
+                      type="number"
+                      value={updatedVenda}
+                      onChange={(e) => setUpdatedVenda(Number(e.target.value))}
+                      className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
+                      placeholder="Venda"
                     />
                     <input
                       type="text"
                       value={updatedContent}
                       onChange={(e) => setUpdatedContent(e.target.value)}
                       className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Editar conteúdo"
+                      placeholder="Editar  localização"
                     />
                   </>
                 ) : (
                   <>
                     <h3 className="text-lg font-bold text-gray-800">{note.title}</h3>
+                    <p className="text-gray-700">{note.venda} kz</p>
                     <p className="text-gray-700">{note.content}</p>
                     {note.pdfurl && (
                       <a href={note.pdfurl} target="_blank" rel="noopener noreferrer" className="block mt-2 text-blue-500 underline hover:text-blue-700">
@@ -163,6 +174,7 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
                       onClick={() => {
                         setEditingNote(note.$id)
                         setUpdatedTitle(note.title)
+                        setUpdatedVenda(note.venda)
                         setUpdatedContent(note.content)
                       }}
                       className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"

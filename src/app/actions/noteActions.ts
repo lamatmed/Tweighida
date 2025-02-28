@@ -5,6 +5,7 @@ export async function addNote(formData: FormData): Promise<Note> {
     const title = formData.get("title") as string;
     const content = formData.get("content") as string;
     const pdfFile = formData.get("pdf") as File | null;
+    const venda = Number(formData.get("venda"));
 
     let pdfurl: string | null = null;
    
@@ -35,6 +36,7 @@ export async function addNote(formData: FormData): Promise<Note> {
             content,
             title,
             pdfurl,
+            venda,
         };
 
         const response = await databases.createDocument(
@@ -49,7 +51,8 @@ export async function addNote(formData: FormData): Promise<Note> {
             $createdAt: response.$createdAt,
             content: response.content,
             title: response.title,
-            pdfurl: response.pdfurl
+            pdfurl: response.pdfurl,
+            venda: response.venda,
         };
     } catch (error) {
         console.error("Erreur lors de l'ajout de la note :", error);
@@ -67,6 +70,7 @@ export async function getNotesFromAppwrite(): Promise<Note[]> {
             $createdAt: doc.$createdAt,
             content: doc.content,
             title: doc.title,
+            venda: doc.venda,
             pdfurl: doc.pdfurl
         }));
     } catch (error) {
@@ -85,11 +89,12 @@ export async function deleteNote(noteId: string) {
     }
 }
 
-export async function updateNote(noteId: string, updatedContent: string, updatedTitle: string) {
+export async function updateNote(noteId: string, updatedContent: string, updatedTitle: string,updatedVenda:number) {
     try {
         await databases.updateDocument(databaseId, collectionId, noteId, {
             content: updatedContent,
-            title: updatedTitle
+            title: updatedTitle,
+            venda: updatedVenda
         });
         console.log(`Note mise à jour : ${noteId}`);
     } catch (error) {
