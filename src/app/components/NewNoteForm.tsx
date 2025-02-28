@@ -5,7 +5,17 @@ import { addNote } from '../actions/noteActions';
 const NewNoteForm = () => {
   const [content, setContent] = useState('')
   const [title, setTitle] = useState('')
-  const [venda, setVenda] = useState(0)
+  const [venda, setVenda] = useState<number | "">(""); // Permet les valeurs vides
+
+  <input
+    type="number"
+    value={venda}
+    onChange={(e) => setVenda(e.target.value === "" ? "" : Number(e.target.value))} 
+    placeholder="Total de venda"
+    className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+    required
+  />
+  
   const [pdfFile, setPdfFile] = useState<File | null>(null) // État pour le fichier PDF
   const [loading, setLoading] = useState(false)
   const [showForm, setShowForm] = useState(false)
@@ -73,13 +83,14 @@ const NewNoteForm = () => {
 
           {/* Champ pour la vente */}
           <input
-            type="number"
-            value={venda}
-            onChange={(e) => setVenda(Number(e.target.value) ||0)} // Corrigé ici
-            placeholder="Total de venda"
-            className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-            required
-          />
+  type="number"
+  value={venda}
+  onChange={(e) => setVenda(e.target.value === "" ? "" : Number(e.target.value))} 
+  placeholder="Total de venda"
+  className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+  required
+/>
+
 
           {/* Champ pour le contenu */}
           <textarea
