@@ -118,7 +118,9 @@ const generatePDF = () => {
     doc.text(`Total de Vendas: ${totalVenda.toFixed(2)} KZ`, 14, finalY + 10);
     doc.text(`Total 7% de Vendas: ${total7Percent.toFixed(2)} KZ`, 14, finalY + 20);
     doc.text(`Total de Classificações: ${filteredNotes.length}`, 14, finalY + 30);
-
+// Ajout de la date de génération du document
+const dateGeneration = new Date().toLocaleDateString(); 
+doc.text(`Data de Geração: ${dateGeneration}`, 14, finalY + 40);
     doc.save('notes.pdf');
 };
 
