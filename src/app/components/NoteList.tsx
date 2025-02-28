@@ -93,10 +93,23 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
   const displayedNotes = filteredNotes.slice((currentPage - 1) * notesPerPage, currentPage * notesPerPage)
 
 
-const generatePDF = () => {
+  const generatePDF = () => {
     const doc = new jsPDF();
-    doc.text('Tabela de Notas', 14, 10);
 
+    // ✅ Nom de l'entreprise et adresse centrés en haut
+    const companyName = "TWEYIGHIDA COMERCIAL LDA";
+    const companyAddress = "NIF : 5417208523";
+    
+    doc.setFontSize(14);
+    doc.text(companyName, 105, 10, { align: "center" });
+    doc.setFontSize(10);
+    doc.text(companyAddress, 105, 16, { align: "center" });
+
+    // ✅ Titre principal
+    doc.setFontSize(12);
+    doc.text('Tabela de Notas', 105, 30,{ align: "center" });
+
+    // ✅ Construction du tableau
     const tableData = filteredNotes.map((note) => [
       note.title,
       `${note.venda} KZ`,
@@ -108,21 +121,29 @@ const generatePDF = () => {
     const total7Percent = totalVenda * 0.07;
 
     autoTable(doc, {  
-      head: [['Selo', 'Venda', 'localização', '7% de Venda']],
+      head: [['Selo', 'Venda', 'Localização', '7% de Venda']],
       body: tableData,
-      startY: 20,
+      startY: 40, // ✅ Ajusté pour éviter la superposition avec l'en-tête
     });
 
-    const finalY = (doc as any).lastAutoTable.finalY || 20; // Récupération correcte de la position finale
+    const finalY = (doc as any).lastAutoTable.finalY || 40; // ✅ Position après le tableau
 
+    // ✅ Ajout des totaux
     doc.text(`Total de Vendas: ${totalVenda.toFixed(2)} KZ`, 14, finalY + 10);
     doc.text(`Total 7% de Vendas: ${total7Percent.toFixed(2)} KZ`, 14, finalY + 20);
     doc.text(`Total de Classificações: ${filteredNotes.length}`, 14, finalY + 30);
-// Ajout de la date de génération du document
-const dateGeneration = new Date().toLocaleDateString(); 
-doc.text(`Data de Geração: ${dateGeneration}`, 14, finalY + 40);
+
+    // ✅ Ajout de la date et heure complète
+    const now = new Date();
+    const dateGeneration = now.toLocaleDateString();
+    const timeGeneration = now.toLocaleTimeString(); // hh:mm:ss
+
+    doc.text(`Data de Geração: ${dateGeneration} ${timeGeneration} NotesApp V1`, 14, finalY + 40);
+
+    // ✅ Sauvegarde du PDF
     doc.save('notes.pdf');
 };
+
 
   return (
     <div className="max-w-md mx-auto mt-5 p-4 bg-white rounded-lg shadow-md">
