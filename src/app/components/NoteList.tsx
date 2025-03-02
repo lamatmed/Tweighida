@@ -19,7 +19,7 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
   // Pagination et recherche
   const [searchQuery, setSearchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
-  const notesPerPage = 5
+  const notesPerPage = 1
 
   useEffect(() => {
     const fetchNotes = async () => {
