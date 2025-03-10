@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { addNote } from '../actions/noteActions';
+import { PlusCircle } from 'lucide-react';
 
 const NewNoteForm = () => {
   const [content, setContent] = useState('')
@@ -58,12 +59,13 @@ const NewNoteForm = () => {
   return (
     <div className="max-w-md mx-auto mt-5 p-4 bg-white rounded-lg shadow-md">
       {!showForm && (
-        <button
-          onClick={() => setShowForm(true)}
-          className="w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-200 text-sm"
-        >
-          Adicionar uma nota
-        </button>
+      <button
+      onClick={() => setShowForm(true)}
+      className="w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-200 text-sm flex items-center justify-center gap-2"
+    >
+      <PlusCircle size={20} /> Adicionar uma nota
+    </button>
+    
       )}
 
       {showForm && (

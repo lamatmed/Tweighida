@@ -4,6 +4,7 @@ import { deleteNote, updateNote, getNotesFromAppwrite } from '../actions/noteAct
 import { client } from '@/utils/appwrite'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
+import { FileText, Printer } from 'lucide-react'
 
 
 export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
@@ -138,7 +139,7 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
     const dateGeneration = now.toLocaleDateString();
     const timeGeneration = now.toLocaleTimeString(); // hh:mm:ss
 
-    doc.text(`Data de Geração: ${dateGeneration} ${timeGeneration} NotesApp V1`, 14, finalY + 40);
+    doc.text(`Data de Geração: ${dateGeneration} ${timeGeneration} NotesApp V1.0.0`, 14, finalY + 40);
 
     // ✅ Sauvegarde du PDF
     doc.save('notes.pdf');
@@ -151,11 +152,12 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
         Total de Classificações : {notes.length}
       </h2>
       <button
-        onClick={generatePDF}
-        className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
-      >
-        Gerar Mapa de Classificações PDF
-      </button>
+  onClick={generatePDF}
+  className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 flex items-center justify-center gap-2"
+>
+  <Printer size={18} /> Gerar Mapa PDF
+</button>
+
       <input
         type="text"
         placeholder="Numero Selo"
@@ -200,13 +202,19 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
                   </>
                 ) : (
                   <>
-                    <h3 className="text-lg font-bold text-gray-800">{note.title}</h3>
-                    <p className="text-gray-700">{note.venda} kz</p>
-                    <p className="text-gray-700">{note.content}</p>
+                    <h3 className="text-lg font-bold text-gray-800">Selo: {note.title}</h3>
+                    <p className="text-green-700 font-bold">Vendas: {note.venda} kz</p>
+                    <p className="text-blue-700 font-bold">Localização: {note.content}</p>
                     {note.pdfurl && (
-                      <a href={note.pdfurl} target="_blank" rel="noopener noreferrer" className="block mt-2 text-blue-500 underline hover:text-blue-700">
-                       Descarregar o ficheiro PDF
-                      </a>
+                     <a 
+                     href={note.pdfurl} 
+                     target="_blank" 
+                     rel="noopener noreferrer" 
+                     className="block mt-2 text-blue-500 underline hover:text-blue-700 flex items-center gap-2"
+                   >
+                     <FileText size={18} /> Descarregar o ficheiro PDF
+                   </a>
+                   
                     )}
                   </>
                 )}
