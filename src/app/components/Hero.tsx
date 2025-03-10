@@ -39,11 +39,11 @@ export default function Hero() {
           href="/notes"
           className="px-6 py-3 text-lg font-semibold bg-yellow-400 text-gray-900 rounded-lg transition-all transform hover:bg-yellow-500 hover:scale-105 active:scale-95"
         >
-          Começar 🚀
+          Começar 
         </a>
          
       </div>
-      <a href="https://wa.me/222301473" target="_blank" rel="noopener noreferrer" className="px-6 py-3 text-lg font-semibold bg-yellow-400 text-gray-900 rounded-lg transition-all transform hover:bg-yellow-500 hover:scale-105 active:scale-95">
+      <a href="https://wa.me/244934808438" target="_blank" rel="noopener noreferrer" className="px-6 py-3 text-lg font-semibold bg-yellow-400 text-gray-900 rounded-lg transition-all transform hover:bg-yellow-500 hover:scale-105 active:scale-95">
                     <PhoneCallIcon size={20} />WhatsApp
                   </a>
     </section>
