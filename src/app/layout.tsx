@@ -5,6 +5,11 @@ import '../styles/globals.css'
 export const metadata: Metadata = {
   title: "Tweighida comercial LDA",
   description: "App de notes comme archive",
+  icons: {
+    icon: "/R.png", // Remplace par le chemin de ton icône
+    shortcut: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({
