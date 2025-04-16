@@ -49,7 +49,7 @@ export default function Navbar() {
           </li>
           <li>
             <a href="/chat" className="flex items-center gap-2 hover:underline" onClick={() => setIsOpen(false)}>
-              <BsRobot size={15} /> AI
+              <BsRobot size={15} /> 
             </a>
           </li>
           <li>

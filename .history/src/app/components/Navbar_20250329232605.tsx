@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { FileText, Home, Info, Menu, ShoppingCartIcon, X } from "lucide-react"; // Icônes pour le menu mobile
 import { motion } from "framer-motion";
-import { BsRobot } from "react-icons/bs";
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -46,14 +45,8 @@ export default function Navbar() {
          <a href="/notes" className="flex items-center gap-2 hover:underline" onClick={() => setIsOpen(false)}>
            <FileText size={15} /> Observações
          </a>
-          </li>
-          <li>
-            <a href="/chat" className="flex items-center gap-2 hover:underline" onClick={() => setIsOpen(false)}>
-              <BsRobot size={15} /> AI
-            </a>
-          </li>
-          <li>
-            
+       </li>
+       <li>
          <a href="/about" className="flex items-center gap-2 hover:underline" onClick={() => setIsOpen(false)}>
            <Info size={15} /> A propósito
          </a>
