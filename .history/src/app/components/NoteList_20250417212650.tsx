@@ -100,7 +100,7 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
     // ✅ Infos de l’entreprise
     const companyName = "TWEYIGHIDA COMERCIAL LDA";
     const companyAddress = "NIF : 5417208523";
-    const title = "RELATÓRIO DE VENDAS";
+    const title = "Tabela de Notas";
 
     // ✅ Dimensions de la carte d'en-tête
     const headerX = 12;

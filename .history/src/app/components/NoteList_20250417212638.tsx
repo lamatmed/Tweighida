@@ -100,7 +100,7 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
     // ✅ Infos de l’entreprise
     const companyName = "TWEYIGHIDA COMERCIAL LDA";
     const companyAddress = "NIF : 5417208523";
-    const title = "RELATÓRIO DE VENDAS";
+    const title = "Tabela de Notas";
 
     // ✅ Dimensions de la carte d'en-tête
     const headerX = 12;
@@ -137,7 +137,7 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
     const total7Percent = totalVenda * 0.07;
 
     autoTable(doc, {
-      head: [['Selo', 'Venda', 'Localização', 'Imposto (7%)']],
+      head: [['Selo', 'Venda', 'Localização', 'IMPOSTO (7%)']],
       body: tableData,
       startY: headerY + headerHeight + 5, // démarre après la carte d’en-tête
     });
