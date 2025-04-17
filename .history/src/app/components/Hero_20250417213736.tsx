@@ -20,7 +20,7 @@ export default function Hero() {
   }
 
   return (
-    <section className="relative w-full min-h-screen flex items-center justify-center text-center bg-gradient-to-r from-indigo-500 to-indigo-600 text-white px-4">
+    <section className="relative w-full min-h-screen flex items-center justify-center text-center bg-gradient-to-r from-yellow-500 to-https://tweighida.vercel.app/-600 text-white px-4">
       <div className="w-full max-w-4xl px-6">
         <motion.h1
           className="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-4 leading-tight"
