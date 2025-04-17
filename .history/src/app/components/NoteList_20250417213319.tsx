@@ -173,7 +173,7 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
 
     doc.setFontSize(9);
     doc.setTextColor(0, 0, 0);
-    doc.text(`Data de Geração: ${dateGeneration} ${timeGeneration} — https://tweighida.vercel.app`, 14, cardY + cardHeight + 10);
+    doc.text(`Data de Geração: ${dateGeneration} ${timeGeneration} — https://tweighida.vercel.app/`, 14, cardY + cardHeight + 10);
 
     // ✅ Export
     doc.save('notes.pdf');
