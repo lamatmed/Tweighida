@@ -97,35 +97,20 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
   const generatePDF = () => {
     const doc = new jsPDF();
 
-    // ✅ Infos de l’entreprise
+    // ✅ Nom de l'entreprise et adresse centrés en haut
     const companyName = "TWEYIGHIDA COMERCIAL LDA";
     const companyAddress = "NIF : 5417208523";
-    const title = "Tabela de Notas";
-
-    // ✅ Dimensions de la carte d'en-tête
-    const headerX = 12;
-    const headerY = 10;
-    const headerWidth = 186;
-    const headerHeight = 25;
-
-    // ✅ Card fond + bordure
-    doc.setFillColor(245, 245, 245); // Gris clair
-    doc.setDrawColor(200); // Bordure gris clair
-    doc.roundedRect(headerX, headerY, headerWidth, headerHeight, 3, 3, 'FD'); // 'F' pour fond, 'D' pour draw
-
-    // ✅ Texte dans la carte d’en-tête
+    
     doc.setFontSize(14);
-    doc.setTextColor(0, 0, 0);
-    doc.text(companyName, 105, headerY + 8, { align: "center" });
-
+    doc.text(companyName, 105, 10, { align: "center" });
     doc.setFontSize(10);
-    doc.text(companyAddress, 105, headerY + 14, { align: "center" });
+    doc.text(companyAddress, 105, 16, { align: "center" });
 
+    // ✅ Titre principal
     doc.setFontSize(12);
-    doc.setTextColor(0, 0, 128);
-    doc.text(title, 105, headerY + 21, { align: "center" });
+    doc.text('Tabela de Notas', 105, 30,{ align: "center" });
 
-    // ✅ Tableau
+    // ✅ Construction du tableau
     const tableData = filteredNotes.map((note) => [
       note.title,
       `${note.venda} KZ`,
@@ -136,51 +121,29 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
     const totalVenda = filteredNotes.reduce((sum, note) => sum + note.venda, 0);
     const total7Percent = totalVenda * 0.07;
 
-    autoTable(doc, {
+    autoTable(doc, {  
       head: [['Selo', 'Venda', 'Localização', '7% de Venda']],
       body: tableData,
-      startY: headerY + headerHeight + 5, // démarre après la carte d’en-tête
+      startY: 40, // ✅ Ajusté pour éviter la superposition avec l'en-tête
     });
 
-    const finalY = (doc as any).lastAutoTable.finalY || 40;
+    const finalY = (doc as any).lastAutoTable.finalY || 40; // ✅ Position après le tableau
 
-    // ✅ Card Résumé des ventes
-    const cardX = 12;
-    const cardY = finalY + 10;
-    const cardWidth = 186;
-    const cardHeight = 40;
+    // ✅ Ajout des totaux
+    doc.text(`Total de Vendas: ${totalVenda.toFixed(2)} KZ`, 14, finalY + 10);
+    doc.text(`Total 7% de Vendas: ${total7Percent.toFixed(2)} KZ`, 14, finalY + 20);
+    doc.text(`Total de Classificações: ${filteredNotes.length}`, 14, finalY + 30);
 
-    doc.setFillColor(245, 245, 245); // Gris clair
-    doc.setDrawColor(200);
-    doc.roundedRect(cardX, cardY, cardWidth, cardHeight, 3, 3, 'F');
-    doc.setDrawColor(200);
-    doc.roundedRect(cardX, cardY, cardWidth, cardHeight, 3, 3);
-
-    doc.setFontSize(11);
-    doc.setTextColor(0, 0, 128);
-    doc.text("Resumo das Vendas", cardX + 4, cardY + 8);
-
-    doc.setFontSize(10);
-    doc.setTextColor(0, 0, 0);
-    doc.text(`• Total de Vendas: ${totalVenda.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} KZ`, cardX + 4, cardY + 16);
-    doc.text(`• Total 7% de Vendas: ${total7Percent.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} KZ`, cardX + 4, cardY + 24);
-    doc.text(`• Total de Classificações: ${filteredNotes.length}`, cardX + 4, cardY + 32);
-
-    // ✅ Date de génération
+    // ✅ Ajout de la date et heure complète
     const now = new Date();
     const dateGeneration = now.toLocaleDateString();
-    const timeGeneration = now.toLocaleTimeString();
+    const timeGeneration = now.toLocaleTimeString(); // hh:mm:ss
 
-    doc.setFontSize(9);
-    doc.setTextColor(0, 0, 0);
-    doc.text(`Data de Geração: ${dateGeneration} ${timeGeneration} — NotesApp V1.0.0`, 14, cardY + cardHeight + 10);
+    doc.text(`Data de Geração: ${dateGeneration} ${timeGeneration} NotesApp V1.0.0`, 14, finalY + 40);
 
-    // ✅ Export
+    // ✅ Sauvegarde du PDF
     doc.save('notes.pdf');
-  };
-
-
-
+};
 
 
   return (

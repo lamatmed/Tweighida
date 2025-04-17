@@ -95,92 +95,101 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
 
 
   const generatePDF = () => {
-    const doc = new jsPDF();
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
+    });
 
-    // ✅ Infos de l’entreprise
-    const companyName = "TWEYIGHIDA COMERCIAL LDA";
-    const companyAddress = "NIF : 5417208523";
-    const title = "Tabela de Notas";
+    // Couleurs modernes
+    const primaryColor = [45, 78, 135]; // Bleu foncé
+    const secondaryColor = [70, 130, 180]; // Bleu acier
+    const accentColor = [220, 53, 69]; // Rouge vif
 
-    // ✅ Dimensions de la carte d'en-tête
-    const headerX = 12;
-    const headerY = 10;
-    const headerWidth = 186;
-    const headerHeight = 25;
+    // En-tête compact
+    doc.setFillColor(...primaryColor);
+    doc.rect(0, 0, doc.internal.pageSize.getWidth(), 15, 'F');
 
-    // ✅ Card fond + bordure
-    doc.setFillColor(245, 245, 245); // Gris clair
-    doc.setDrawColor(200); // Bordure gris clair
-    doc.roundedRect(headerX, headerY, headerWidth, headerHeight, 3, 3, 'FD'); // 'F' pour fond, 'D' pour draw
-
-    // ✅ Texte dans la carte d’en-tête
-    doc.setFontSize(14);
-    doc.setTextColor(0, 0, 0);
-    doc.text(companyName, 105, headerY + 8, { align: "center" });
-
-    doc.setFontSize(10);
-    doc.text(companyAddress, 105, headerY + 14, { align: "center" });
-
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
     doc.setFontSize(12);
-    doc.setTextColor(0, 0, 128);
-    doc.text(title, 105, headerY + 21, { align: "center" });
+    doc.text("TWEYIGHIDA COMERCIAL LDA", 105, 8, { align: "center" });
 
-    // ✅ Tableau
+    doc.setFontSize(8);
+    doc.text("NIF : 5417208523", 105, 13, { align: "center" });
+
+    // Titre principal compact
+    doc.setFontSize(11);
+    doc.setTextColor(...primaryColor);
+    doc.text('RELATÓRIO DE VENDAS - RESUMO', 105, 22, { align: "center" });
+
+    // Construction des données du tableau compact
     const tableData = filteredNotes.map((note) => [
       note.title,
-      `${note.venda} KZ`,
+      `${note.venda.toLocaleString('pt-PT')} KZ`,
       note.content,
-      `${(note.venda * 0.07).toFixed(2)} KZ`
+      `${(note.venda * 0.07).toLocaleString('pt-PT', { minimumFractionDigits: 2 })} KZ`
     ]);
 
     const totalVenda = filteredNotes.reduce((sum, note) => sum + note.venda, 0);
     const total7Percent = totalVenda * 0.07;
 
+    // Tableau compact avec marges réduites
     autoTable(doc, {
-      head: [['Selo', 'Venda', 'Localização', '7% de Venda']],
+      head: [['Selo', 'Venda', 'Local', '7% Venda']],
       body: tableData,
-      startY: headerY + headerHeight + 5, // démarre après la carte d’en-tête
+      startY: 28,
+      headStyles: {
+        fillColor: secondaryColor,
+        textColor: 255,
+        fontStyle: 'bold',
+        fontSize: 8
+      },
+      bodyStyles: {
+        fontSize: 8,
+        cellPadding: 3
+      },
+      styles: {
+        fontSize: 8,
+        valign: 'middle',
+        halign: 'left'
+      },
+      columnStyles: {
+        1: { halign: 'right' },
+        3: { halign: 'right' }
+      },
+      margin: { left: 10, right: 10 }
     });
 
-    const finalY = (doc as any).lastAutoTable.finalY || 40;
+    const finalY = Math.min((doc as any).lastAutoTable.finalY || 28, 180);
 
-    // ✅ Card Résumé des ventes
-    const cardX = 12;
-    const cardY = finalY + 10;
-    const cardWidth = 186;
-    const cardHeight = 40;
-
-    doc.setFillColor(245, 245, 245); // Gris clair
-    doc.setDrawColor(200);
-    doc.roundedRect(cardX, cardY, cardWidth, cardHeight, 3, 3, 'F');
-    doc.setDrawColor(200);
-    doc.roundedRect(cardX, cardY, cardWidth, cardHeight, 3, 3);
-
-    doc.setFontSize(11);
-    doc.setTextColor(0, 0, 128);
-    doc.text("Resumo das Vendas", cardX + 4, cardY + 8);
-
-    doc.setFontSize(10);
-    doc.setTextColor(0, 0, 0);
-    doc.text(`• Total de Vendas: ${totalVenda.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} KZ`, cardX + 4, cardY + 16);
-    doc.text(`• Total 7% de Vendas: ${total7Percent.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} KZ`, cardX + 4, cardY + 24);
-    doc.text(`• Total de Classificações: ${filteredNotes.length}`, cardX + 4, cardY + 32);
-
-    // ✅ Date de génération
-    const now = new Date();
-    const dateGeneration = now.toLocaleDateString();
-    const timeGeneration = now.toLocaleTimeString();
-
+    // Section des totaux compacte
     doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...primaryColor);
+    doc.text('TOTAIS:', 14, finalY + 8);
+
+    doc.setFont('helvetica', 'normal');
     doc.setTextColor(0, 0, 0);
-    doc.text(`Data de Geração: ${dateGeneration} ${timeGeneration} — NotesApp V1.0.0`, 14, cardY + cardHeight + 10);
+    doc.text(`Vendas: ${totalVenda.toLocaleString('pt-PT')} KZ`, 14, finalY + 15);
+    doc.text(`7% Vendas: ${total7Percent.toLocaleString('pt-PT')} KZ`, 14, finalY + 21);
+    doc.text(`Itens: ${filteredNotes.length}`, 14, finalY + 27);
 
-    // ✅ Export
-    doc.save('notes.pdf');
+    // Pied de page ultra compact
+    const now = new Date();
+    doc.setFontSize(7);
+    doc.setTextColor(100, 100, 100);
+    doc.text(
+      `Gerado: ${now.toLocaleDateString('pt-PT')} ${now.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })} | NotesApp V1.0.0`,
+      105,
+      287,
+      { align: "center" }
+    );
+
+    // Nom de fichier avec timestamp
+    const fileName = `vendas_${now.getDate()}${now.getMonth() + 1}${now.getFullYear()}_${now.getHours()}${now.getMinutes()}.pdf`;
+    doc.save(fileName);
   };
-
-
-
 
 
   return (
@@ -247,7 +256,7 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
                      href={note.pdfurl} 
                      target="_blank" 
                      rel="noopener noreferrer" 
-                     className="block mt-2 text-blue-500 underline hover:text-blue-700 items-center gap-2"
+                     className="block mt-2 text-blue-500 underline hover:text-blue-700 flex items-center gap-2"
                    >
                      <FileText size={18} /> Descarregar o ficheiro PDF
                    </a>

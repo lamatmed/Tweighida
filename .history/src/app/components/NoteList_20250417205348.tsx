@@ -97,38 +97,33 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
   const generatePDF = () => {
     const doc = new jsPDF();
 
-    // ✅ Infos de l’entreprise
-    const companyName = "TWEYIGHIDA COMERCIAL LDA";
-    const companyAddress = "NIF : 5417208523";
-    const title = "Tabela de Notas";
+    // ✅ Couleurs & style
+    const primaryColor = "#007BFF";
+    const greyText = "#555";
+    const blackText = "#000";
 
-    // ✅ Dimensions de la carte d'en-tête
-    const headerX = 12;
-    const headerY = 10;
-    const headerWidth = 186;
-    const headerHeight = 25;
+    // ✅ En-tête encadré
+    doc.setDrawColor(200);
+    doc.setLineWidth(0.5);
+    doc.rect(10, 10, 190, 20); // rectangle header
 
-    // ✅ Card fond + bordure
-    doc.setFillColor(245, 245, 245); // Gris clair
-    doc.setDrawColor(200); // Bordure gris clair
-    doc.roundedRect(headerX, headerY, headerWidth, headerHeight, 3, 3, 'FD'); // 'F' pour fond, 'D' pour draw
-
-    // ✅ Texte dans la carte d’en-tête
-    doc.setFontSize(14);
-    doc.setTextColor(0, 0, 0);
-    doc.text(companyName, 105, headerY + 8, { align: "center" });
+    doc.setFontSize(16);
+    doc.setTextColor(primaryColor);
+    doc.text("TWEYIGHIDA COMERCIAL LDA", 105, 18, { align: "center" });
 
     doc.setFontSize(10);
-    doc.text(companyAddress, 105, headerY + 14, { align: "center" });
+    doc.setTextColor(greyText);
+    doc.text("NIF : 5417208523", 105, 24, { align: "center" });
 
-    doc.setFontSize(12);
-    doc.setTextColor(0, 0, 128);
-    doc.text(title, 105, headerY + 21, { align: "center" });
+    // ✅ Titre principal
+    doc.setFontSize(13);
+    doc.setTextColor(blackText);
+    doc.text("Tabela de Notas", 105, 40, { align: "center" });
 
     // ✅ Tableau
     const tableData = filteredNotes.map((note) => [
       note.title,
-      `${note.venda} KZ`,
+      `${note.venda.toLocaleString()} KZ`,
       note.content,
       `${(note.venda * 0.07).toFixed(2)} KZ`
     ]);
@@ -139,48 +134,37 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
     autoTable(doc, {
       head: [['Selo', 'Venda', 'Localização', '7% de Venda']],
       body: tableData,
-      startY: headerY + headerHeight + 5, // démarre après la carte d’en-tête
+      startY: 50,
+      theme: 'striped',
+      headStyles: { fillColor: [0, 123, 255], textColor: 255 },
+      styles: { fontSize: 10, cellPadding: 3 },
     });
 
-    const finalY = (doc as any).lastAutoTable.finalY || 40;
+    const finalY = (doc as any).lastAutoTable.finalY || 50;
 
-    // ✅ Card Résumé des ventes
-    const cardX = 12;
-    const cardY = finalY + 10;
-    const cardWidth = 186;
-    const cardHeight = 40;
-
-    doc.setFillColor(245, 245, 245); // Gris clair
-    doc.setDrawColor(200);
-    doc.roundedRect(cardX, cardY, cardWidth, cardHeight, 3, 3, 'F');
-    doc.setDrawColor(200);
-    doc.roundedRect(cardX, cardY, cardWidth, cardHeight, 3, 3);
-
+    // ✅ Bloc Totaux
     doc.setFontSize(11);
-    doc.setTextColor(0, 0, 128);
-    doc.text("Resumo das Vendas", cardX + 4, cardY + 8);
+    doc.setTextColor(blackText);
+    doc.setDrawColor(220);
+    doc.setFillColor(245);
+    doc.rect(10, finalY + 5, 190, 25, 'F');
 
-    doc.setFontSize(10);
-    doc.setTextColor(0, 0, 0);
-    doc.text(`• Total de Vendas: ${totalVenda.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} KZ`, cardX + 4, cardY + 16);
-    doc.text(`• Total 7% de Vendas: ${total7Percent.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} KZ`, cardX + 4, cardY + 24);
-    doc.text(`• Total de Classificações: ${filteredNotes.length}`, cardX + 4, cardY + 32);
+    doc.text(`Total de Vendas: ${totalVenda.toFixed(2)} KZ`, 14, finalY + 13);
+    doc.text(`Total 7% de Vendas: ${total7Percent.toFixed(2)} KZ`, 14, finalY + 20);
+    doc.text(`Total de Classificações: ${filteredNotes.length}`, 14, finalY + 27);
 
-    // ✅ Date de génération
+    // ✅ Date et version en bas de page
     const now = new Date();
     const dateGeneration = now.toLocaleDateString();
     const timeGeneration = now.toLocaleTimeString();
 
-    doc.setFontSize(9);
-    doc.setTextColor(0, 0, 0);
-    doc.text(`Data de Geração: ${dateGeneration} ${timeGeneration} — NotesApp V1.0.0`, 14, cardY + cardHeight + 10);
+    doc.setFontSize(8);
+    doc.setTextColor(greyText);
+    doc.text(`Data de Geração: ${dateGeneration} ${timeGeneration} • NotesApp V1.0.0`, 14, 290);
 
-    // ✅ Export
-    doc.save('notes.pdf');
+    // ✅ Sauvegarde
+    doc.save('Notas_Tabela.pdf');
   };
-
-
-
 
 
   return (

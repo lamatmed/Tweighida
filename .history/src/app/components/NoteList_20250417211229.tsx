@@ -172,7 +172,7 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
     const timeGeneration = now.toLocaleTimeString();
 
     doc.setFontSize(9);
-    doc.setTextColor(0, 0, 0);
+    doc.setTextColor(100);
     doc.text(`Data de Geração: ${dateGeneration} ${timeGeneration} — NotesApp V1.0.0`, 14, cardY + cardHeight + 10);
 
     // ✅ Export

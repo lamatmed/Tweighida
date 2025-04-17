@@ -6,7 +6,6 @@ import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import { FileText, Printer } from 'lucide-react'
 
-
 export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
   const [notes, setNotes] = useState<Note[]>(initialNotes)
   const [editingNote, setEditingNote] = useState<string | null>(null)
@@ -15,9 +14,9 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
   const [updatedVenda, setUpdatedVenda] = useState<number>(0)
   const [loadingUpdate, setLoadingUpdate] = useState<string | null>(null)
   const [loadingDelete, setLoadingDelete] = useState<string | null>(null)
-  const [loading, setLoading] = useState(true) // Indicateur de chargement
+  const [loading, setLoading] = useState(true)
 
-  // Pagination et recherche
+  // Paginação e pesquisa
   const [searchQuery, setSearchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const notesPerPage = 1
@@ -25,11 +24,10 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
   useEffect(() => {
     const fetchNotes = async () => {
       try {
-       
         const updatedNotes = await getNotesFromAppwrite()
         setNotes(updatedNotes)
       } catch (error) {
-        console.error('Erreur lors du rafraîchissement des notes:', error)
+        console.error('Erro ao atualizar notas:', error)
       } finally {
         setLoading(false)
       }
@@ -59,14 +57,14 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
   }, [])
 
   const handleDelete = async (noteId: string) => {
-    if (!window.confirm('Tem a certeza de que pretende eliminar esta nota?')) return
+    if (!window.confirm('Tem certeza que deseja excluir esta nota?')) return
 
     try {
       setLoadingDelete(noteId)
       await deleteNote(noteId)
       setNotes((prevNotes) => prevNotes.filter((note) => note.$id !== noteId))
     } catch (error) {
-      console.error('Erreur lors de la suppression:', error)
+      console.error('Erro ao excluir:', error)
     } finally {
       setLoadingDelete(null)
     }
@@ -77,13 +75,13 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
 
     try {
       setLoadingUpdate(noteId)
-      await updateNote(noteId, updatedContent, updatedTitle,updatedVenda)
+      await updateNote(noteId, updatedContent, updatedTitle, updatedVenda)
       setEditingNote(null)
       setUpdatedContent('')
       setUpdatedVenda(0)
       setUpdatedTitle('')
     } catch (error) {
-      console.error('Erreur lors de la mise à jour:', error)
+      console.error('Erro ao atualizar:', error)
     } finally {
       setLoadingUpdate(null)
     }
@@ -93,125 +91,91 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
   const totalPages = Math.ceil(filteredNotes.length / notesPerPage)
   const displayedNotes = filteredNotes.slice((currentPage - 1) * notesPerPage, currentPage * notesPerPage)
 
-
   const generatePDF = () => {
-    const doc = new jsPDF();
+  const doc = new jsPDF({
+    orientation: 'landscape',
+    unit: 'mm'
+  });
 
-    // ✅ Infos de l’entreprise
-    const companyName = "TWEYIGHIDA COMERCIAL LDA";
-    const companyAddress = "NIF : 5417208523";
-    const title = "Tabela de Notas";
+  // ... (garder le même code pour l'en-tête et le tableau jusqu'à finalY)
 
-    // ✅ Dimensions de la carte d'en-tête
-    const headerX = 12;
-    const headerY = 10;
-    const headerWidth = 186;
-    const headerHeight = 25;
+  const finalY = (doc as any).lastAutoTable.finalY || 45;
 
-    // ✅ Card fond + bordure
-    doc.setFillColor(245, 245, 245); // Gris clair
-    doc.setDrawColor(200); // Bordure gris clair
-    doc.roundedRect(headerX, headerY, headerWidth, headerHeight, 3, 3, 'FD'); // 'F' pour fond, 'D' pour draw
+  // Section des totaux - Style amélioré
+  doc.setFillColor(240, 240, 240); // Fond gris clair
+  doc.rect(15, finalY + 5, pageWidth - 30, 20, 'F'); // Rectangle de fond
+  
+  doc.setDrawColor(200, 200, 200); // Bordure grise
+  doc.setLineWidth(0.3);
+  doc.rect(15, finalY + 5, pageWidth - 30, 20); // Rectangle de bordure
 
-    // ✅ Texte dans la carte d’en-tête
-    doc.setFontSize(14);
-    doc.setTextColor(0, 0, 0);
-    doc.text(companyName, 105, headerY + 8, { align: "center" });
+  // Police et couleurs pour les totaux
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(44, 62, 80); // Bleu foncé
 
-    doc.setFontSize(10);
-    doc.text(companyAddress, 105, headerY + 14, { align: "center" });
+  // Positionnement précis des totaux
+  const startY = finalY + 10;
+  
+  // Total Vendas - Format monétaire aligné
+  doc.setFontSize(11);
+  doc.text("Total Vendas:", 20, startY);
+  doc.text(`${totalVenda.toLocaleString('pt-PT')} KZ`, pageWidth - 20, startY, { align: "right" });
 
-    doc.setFontSize(12);
-    doc.setTextColor(0, 0, 128);
-    doc.text(title, 105, headerY + 21, { align: "center" });
+  // 7% Vendas - Format avec 2 décimales
+  doc.text("7% Vendas:", 20, startY + 7);
+  doc.text(`${total7Percent.toLocaleString('pt-PT', { 
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2 
+  })} KZ`, pageWidth - 20, startY + 7, { align: "right" });
 
-    // ✅ Tableau
-    const tableData = filteredNotes.map((note) => [
-      note.title,
-      `${note.venda} KZ`,
-      note.content,
-      `${(note.venda * 0.07).toFixed(2)} KZ`
-    ]);
+  // Nombre de registres
+  doc.text("Registros:", 20, startY + 14);
+  doc.text(filteredNotes.length.toString(), pageWidth - 20, startY + 14, { align: "right" });
 
-    const totalVenda = filteredNotes.reduce((sum, note) => sum + note.venda, 0);
-    const total7Percent = totalVenda * 0.07;
+  // Ligne de séparation
+  doc.setDrawColor(255, 193, 7); // Jaune
+  doc.setLineWidth(0.5);
+  doc.line(15, finalY + 26, pageWidth - 15, finalY + 26);
 
-    autoTable(doc, {
-      head: [['Selo', 'Venda', 'Localização', '7% de Venda']],
-      body: tableData,
-      startY: headerY + headerHeight + 5, // démarre après la carte d’en-tête
-    });
+  // Pied de page
+  doc.setFontSize(8);
+  doc.setTextColor(100, 100, 100);
+  doc.text('Sistema de Gestão de Notas - Versão 1.0.0', pageWidth / 2, pageHeight - 10, { align: "center" });
+  doc.text('Página 1/1', pageWidth - 15, pageHeight - 10, { align: "right" });
 
-    const finalY = (doc as any).lastAutoTable.finalY || 40;
-
-    // ✅ Card Résumé des ventes
-    const cardX = 12;
-    const cardY = finalY + 10;
-    const cardWidth = 186;
-    const cardHeight = 40;
-
-    doc.setFillColor(245, 245, 245); // Gris clair
-    doc.setDrawColor(200);
-    doc.roundedRect(cardX, cardY, cardWidth, cardHeight, 3, 3, 'F');
-    doc.setDrawColor(200);
-    doc.roundedRect(cardX, cardY, cardWidth, cardHeight, 3, 3);
-
-    doc.setFontSize(11);
-    doc.setTextColor(0, 0, 128);
-    doc.text("Resumo das Vendas", cardX + 4, cardY + 8);
-
-    doc.setFontSize(10);
-    doc.setTextColor(0, 0, 0);
-    doc.text(`• Total de Vendas: ${totalVenda.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} KZ`, cardX + 4, cardY + 16);
-    doc.text(`• Total 7% de Vendas: ${total7Percent.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} KZ`, cardX + 4, cardY + 24);
-    doc.text(`• Total de Classificações: ${filteredNotes.length}`, cardX + 4, cardY + 32);
-
-    // ✅ Date de génération
-    const now = new Date();
-    const dateGeneration = now.toLocaleDateString();
-    const timeGeneration = now.toLocaleTimeString();
-
-    doc.setFontSize(9);
-    doc.setTextColor(0, 0, 0);
-    doc.text(`Data de Geração: ${dateGeneration} ${timeGeneration} — NotesApp V1.0.0`, 14, cardY + cardHeight + 10);
-
-    // ✅ Export
-    doc.save('notes.pdf');
-  };
-
-
-
-
+  doc.save(`relatorio_notas_${now.toISOString().slice(0, 10)}.pdf`);
+};
 
   return (
     <div className="max-w-md mx-auto mt-5 p-4 bg-white rounded-lg shadow-md">
       <h2 className="text-lg font-semibold text-gray-700 text-center">
-        Total de Classificações : {notes.length}
+        Total de Registros: {notes.length}
       </h2>
+
       <button
-  onClick={generatePDF}
-  className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 flex items-center justify-center gap-2"
->
-  <Printer size={18} /> Gerar Mapa PDF
-</button>
+        onClick={generatePDF}
+        className="w-full bg-gradient-to-r from-blue-600 to-blue-800 text-white py-2 rounded-lg hover:from-blue-700 hover:to-blue-900 flex items-center justify-center gap-2 shadow-md transition-all duration-300"
+      >
+        <Printer size={18} /> Gerar Relatório PDF
+      </button>
 
       <input
         type="text"
-        placeholder="Numero Selo"
+        placeholder="Número do Selo"
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         className="w-full p-2 border rounded-md my-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
 
       {loading ? (
-        <div className="flex justify-center items-center ">
-        <div className="animate-spin h-10 w-10 border-t-4 border-blue-500 rounded-full"></div>
-      </div>
+        <div className="flex justify-center items-center">
+          <div className="animate-spin h-10 w-10 border-t-4 border-blue-500 rounded-full"></div>
+        </div>
       ) : (
         <ul className="space-y-4">
           {displayedNotes.length > 0 ? (
             displayedNotes.map((note) => (
-              <li key={note.$id} className="p-3 bg-gray-50 rounded-lg shadow">
+              <li key={note.$id} className="p-3 bg-gray-50 rounded-lg shadow hover:shadow-md transition-shadow">
                 {editingNote === note.$id ? (
                   <>
                     <input
@@ -222,7 +186,7 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
                       placeholder="Selo"
                     />
 
-                  <input
+                    <input
                       type="number"
                       value={updatedVenda}
                       onChange={(e) => setUpdatedVenda(Number(e.target.value))}
@@ -234,46 +198,43 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
                       value={updatedContent}
                       onChange={(e) => setUpdatedContent(e.target.value)}
                       className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Editar  localização"
+                      placeholder="Editar localização"
                     />
                   </>
                 ) : (
                   <>
                     <h3 className="text-lg font-bold text-gray-800">Selo: {note.title}</h3>
-                    <p className="text-green-700 font-bold">Vendas: {note.venda} kz</p>
+                    <p className="text-green-700 font-bold">Vendas: {note.venda.toLocaleString('pt-PT')} KZ</p>
                     <p className="text-blue-700 font-bold">Localização: {note.content}</p>
                     {note.pdfurl && (
-                     <a 
-                     href={note.pdfurl} 
-                     target="_blank" 
-                     rel="noopener noreferrer" 
-                     className="block mt-2 text-blue-500 underline hover:text-blue-700 items-center gap-2"
-                   >
-                     <FileText size={18} /> Descarregar o ficheiro PDF
-                   </a>
-                   
+                      <a
+                        href={note.pdfurl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 mt-2 text-blue-500 underline hover:text-blue-700"
+                      >
+                        <FileText size={18} /> Baixar PDF
+                      </a>
                     )}
                   </>
                 )}
-                <div className="flex gap-2 mt-2">
+                <div className="flex gap-2 mt-3">
                   <button
                     onClick={() => handleDelete(note.$id)}
-                    className={`px-3 py-1 rounded text-white transition ${
-                      loadingDelete === note.$id ? 'bg-gray-400 cursor-not-allowed' : 'bg-red-500 hover:bg-red-600'
-                    }`}
+                    className={`px-3 py-1 rounded-lg text-white transition ${loadingDelete === note.$id ? 'bg-gray-400 cursor-not-allowed' : 'bg-red-500 hover:bg-red-600'
+                      }`}
                     disabled={loadingDelete === note.$id}
                   >
-                    {loadingDelete === note.$id ? 'Supressão...' : 'Suprimir'}
+                    {loadingDelete === note.$id ? 'Excluindo...' : 'Excluir'}
                   </button>
                   {editingNote === note.$id ? (
                     <button
                       onClick={() => handleUpdate(note.$id)}
-                      className={`px-3 py-1 rounded text-white transition ${
-                        loadingUpdate === note.$id ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-500 hover:bg-green-600'
-                      }`}
+                      className={`px-3 py-1 rounded-lg text-white transition ${loadingUpdate === note.$id ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-500 hover:bg-green-600'
+                        }`}
                       disabled={loadingUpdate === note.$id}
                     >
-                      {loadingUpdate === note.$id ? 'Atualizar...' : 'Recorde'}
+                      {loadingUpdate === note.$id ? 'Atualizando...' : 'Salvar'}
                     </button>
                   ) : (
                     <button
@@ -283,30 +244,38 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
                         setUpdatedVenda(note.venda)
                         setUpdatedContent(note.content)
                       }}
-                      className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                      className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600"
                     >
-                      Modificar
+                      Editar
                     </button>
                   )}
                 </div>
               </li>
             ))
           ) : (
-            <p className="text-center text-gray-500">Não há notas disponíveis.</p>
+            <p className="text-center text-gray-500">Nenhuma nota encontrada.</p>
           )}
         </ul>
       )}
 
       {totalPages > 1 && (
         <div className="flex justify-center items-center gap-2 mt-4">
-          <button onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))} disabled={currentPage === 1} className="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400 disabled:opacity-50">
-          Anterior
+          <button
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className="px-3 py-1 bg-gray-200 rounded-lg hover:bg-gray-300 disabled:opacity-50 transition"
+          >
+            Anterior
           </button>
           <span className="text-gray-700">
-          Página {currentPage} / {totalPages}
+            Página {currentPage} de {totalPages}
           </span>
-          <button onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} className="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400 disabled:opacity-50">
-          Seguinte
+          <button
+            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+            className="px-3 py-1 bg-gray-200 rounded-lg hover:bg-gray-300 disabled:opacity-50 transition"
+          >
+            Próxima
           </button>
         </div>
       )}

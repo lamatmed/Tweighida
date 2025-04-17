@@ -97,38 +97,31 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
   const generatePDF = () => {
     const doc = new jsPDF();
 
-    // ✅ Infos de l’entreprise
+    // ✅ En-tête de l'entreprise
     const companyName = "TWEYIGHIDA COMERCIAL LDA";
     const companyAddress = "NIF : 5417208523";
-    const title = "Tabela de Notas";
 
-    // ✅ Dimensions de la carte d'en-tête
-    const headerX = 12;
-    const headerY = 10;
-    const headerWidth = 186;
-    const headerHeight = 25;
+    doc.setFontSize(16);
+    doc.setFont(undefined, 'bold');
+    doc.text(companyName, 105, 12, { align: "center" });
 
-    // ✅ Card fond + bordure
-    doc.setFillColor(245, 245, 245); // Gris clair
-    doc.setDrawColor(200); // Bordure gris clair
-    doc.roundedRect(headerX, headerY, headerWidth, headerHeight, 3, 3, 'FD'); // 'F' pour fond, 'D' pour draw
+    doc.setFontSize(11);
+    doc.setFont(undefined, 'normal');
+    doc.text(companyAddress, 105, 18, { align: "center" });
 
-    // ✅ Texte dans la carte d’en-tête
-    doc.setFontSize(14);
-    doc.setTextColor(0, 0, 0);
-    doc.text(companyName, 105, headerY + 8, { align: "center" });
+    // ✅ Ligne séparatrice
+    doc.setLineWidth(0.5);
+    doc.line(20, 22, 190, 22);
 
-    doc.setFontSize(10);
-    doc.text(companyAddress, 105, headerY + 14, { align: "center" });
+    // ✅ Titre principal
+    doc.setFontSize(13);
+    doc.setFont(undefined, 'bold');
+    doc.text('📄 Tabela de Notas', 105, 32, { align: "center" });
 
-    doc.setFontSize(12);
-    doc.setTextColor(0, 0, 128);
-    doc.text(title, 105, headerY + 21, { align: "center" });
-
-    // ✅ Tableau
+    // ✅ Table
     const tableData = filteredNotes.map((note) => [
       note.title,
-      `${note.venda} KZ`,
+      `${note.venda.toLocaleString()} KZ`,
       note.content,
       `${(note.venda * 0.07).toFixed(2)} KZ`
     ]);
@@ -137,49 +130,53 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
     const total7Percent = totalVenda * 0.07;
 
     autoTable(doc, {
-      head: [['Selo', 'Venda', 'Localização', '7% de Venda']],
+      head: [['🧾 Selo', '💰 Venda', '📍 Localização', '📊 7% de Venda']],
       body: tableData,
-      startY: headerY + headerHeight + 5, // démarre après la carte d’en-tête
+      startY: 40,
+      theme: 'grid',
+      headStyles: {
+        fillColor: [50, 50, 50],
+        textColor: 255,
+        fontStyle: 'bold',
+      },
+      styles: {
+        fontSize: 10,
+        cellPadding: 3,
+      },
+      margin: { left: 14, right: 14 },
     });
 
     const finalY = (doc as any).lastAutoTable.finalY || 40;
 
-    // ✅ Card Résumé des ventes
-    const cardX = 12;
-    const cardY = finalY + 10;
-    const cardWidth = 186;
-    const cardHeight = 40;
-
-    doc.setFillColor(245, 245, 245); // Gris clair
-    doc.setDrawColor(200);
-    doc.roundedRect(cardX, cardY, cardWidth, cardHeight, 3, 3, 'F');
-    doc.setDrawColor(200);
-    doc.roundedRect(cardX, cardY, cardWidth, cardHeight, 3, 3);
-
+    // ✅ Résumé des totaux
     doc.setFontSize(11);
-    doc.setTextColor(0, 0, 128);
-    doc.text("Resumo das Vendas", cardX + 4, cardY + 8);
+    doc.setFont(undefined, 'bold');
+    doc.text(`📦 Total de Vendas: `, 14, finalY + 12);
+    doc.setFont(undefined, 'normal');
+    doc.text(`${totalVenda.toFixed(2)} KZ`, 65, finalY + 12);
 
-    doc.setFontSize(10);
-    doc.setTextColor(0, 0, 0);
-    doc.text(`• Total de Vendas: ${totalVenda.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} KZ`, cardX + 4, cardY + 16);
-    doc.text(`• Total 7% de Vendas: ${total7Percent.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} KZ`, cardX + 4, cardY + 24);
-    doc.text(`• Total de Classificações: ${filteredNotes.length}`, cardX + 4, cardY + 32);
+    doc.setFont(undefined, 'bold');
+    doc.text(`📈 Total 7% de Vendas: `, 14, finalY + 20);
+    doc.setFont(undefined, 'normal');
+    doc.text(`${total7Percent.toFixed(2)} KZ`, 65, finalY + 20);
 
-    // ✅ Date de génération
+    doc.setFont(undefined, 'bold');
+    doc.text(`🧮 Total de Classificações: `, 14, finalY + 28);
+    doc.setFont(undefined, 'normal');
+    doc.text(`${filteredNotes.length}`, 65, finalY + 28);
+
+    // ✅ Pied de page
     const now = new Date();
     const dateGeneration = now.toLocaleDateString();
     const timeGeneration = now.toLocaleTimeString();
 
     doc.setFontSize(9);
-    doc.setTextColor(0, 0, 0);
-    doc.text(`Data de Geração: ${dateGeneration} ${timeGeneration} — NotesApp V1.0.0`, 14, cardY + cardHeight + 10);
+    doc.setTextColor(120);
+    doc.text(`🕒 Data de Geração: ${dateGeneration} ${timeGeneration} · NotesApp V1.0.0`, 14, finalY + 40);
 
-    // ✅ Export
+    // ✅ Génération du PDF
     doc.save('notes.pdf');
   };
-
-
 
 
 

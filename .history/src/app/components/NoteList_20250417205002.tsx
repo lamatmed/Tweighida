@@ -95,92 +95,101 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
 
 
   const generatePDF = () => {
-    const doc = new jsPDF();
+  // Création du document en paysage
+  const doc = new jsPDF({
+    orientation: 'landscape',
+    unit: 'mm'
+  });
 
-    // ✅ Infos de l’entreprise
-    const companyName = "TWEYIGHIDA COMERCIAL LDA";
-    const companyAddress = "NIF : 5417208523";
-    const title = "Tabela de Notas";
+  // Dimensions
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const margin = 10; // Marge réduite
 
-    // ✅ Dimensions de la carte d'en-tête
-    const headerX = 12;
-    const headerY = 10;
-    const headerWidth = 186;
-    const headerHeight = 25;
+  // ========== EN-TÊTE COMPACT ==========
+  doc.setFillColor(44, 62, 80);
+  doc.rect(0, 0, pageWidth, 15, 'F'); // Hauteur réduite
+  
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(12); // Taille réduite
+  doc.text("TWEYIGHIDA COMERCIAL LDA", pageWidth/2, 8, {align: "center"});
+  
+  doc.setFontSize(8);
+  doc.text("NIF: 5417208523", pageWidth/2, 12, {align: "center"});
 
-    // ✅ Card fond + bordure
-    doc.setFillColor(245, 245, 245); // Gris clair
-    doc.setDrawColor(200); // Bordure gris clair
-    doc.roundedRect(headerX, headerY, headerWidth, headerHeight, 3, 3, 'FD'); // 'F' pour fond, 'D' pour draw
+  // ========== CORPS DU DOCUMENT ==========
+  const tableData = filteredNotes.map(note => [
+    note.title,
+    `${note.venda.toLocaleString('pt-PT')} KZ`,
+    note.content,
+    `${(note.venda * 0.07).toLocaleString('pt-PT', {minimumFractionDigits: 2})} KZ`
+  ]);
 
-    // ✅ Texte dans la carte d’en-tête
-    doc.setFontSize(14);
-    doc.setTextColor(0, 0, 0);
-    doc.text(companyName, 105, headerY + 8, { align: "center" });
-
-    doc.setFontSize(10);
-    doc.text(companyAddress, 105, headerY + 14, { align: "center" });
-
-    doc.setFontSize(12);
-    doc.setTextColor(0, 0, 128);
-    doc.text(title, 105, headerY + 21, { align: "center" });
-
-    // ✅ Tableau
-    const tableData = filteredNotes.map((note) => [
-      note.title,
-      `${note.venda} KZ`,
-      note.content,
-      `${(note.venda * 0.07).toFixed(2)} KZ`
-    ]);
-
-    const totalVenda = filteredNotes.reduce((sum, note) => sum + note.venda, 0);
-    const total7Percent = totalVenda * 0.07;
-
-    autoTable(doc, {
-      head: [['Selo', 'Venda', 'Localização', '7% de Venda']],
-      body: tableData,
-      startY: headerY + headerHeight + 5, // démarre après la carte d’en-tête
-    });
-
-    const finalY = (doc as any).lastAutoTable.finalY || 40;
-
-    // ✅ Card Résumé des ventes
-    const cardX = 12;
-    const cardY = finalY + 10;
-    const cardWidth = 186;
-    const cardHeight = 40;
-
-    doc.setFillColor(245, 245, 245); // Gris clair
-    doc.setDrawColor(200);
-    doc.roundedRect(cardX, cardY, cardWidth, cardHeight, 3, 3, 'F');
-    doc.setDrawColor(200);
-    doc.roundedRect(cardX, cardY, cardWidth, cardHeight, 3, 3);
-
-    doc.setFontSize(11);
-    doc.setTextColor(0, 0, 128);
-    doc.text("Resumo das Vendas", cardX + 4, cardY + 8);
-
-    doc.setFontSize(10);
-    doc.setTextColor(0, 0, 0);
-    doc.text(`• Total de Vendas: ${totalVenda.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} KZ`, cardX + 4, cardY + 16);
-    doc.text(`• Total 7% de Vendas: ${total7Percent.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} KZ`, cardX + 4, cardY + 24);
-    doc.text(`• Total de Classificações: ${filteredNotes.length}`, cardX + 4, cardY + 32);
-
-    // ✅ Date de génération
-    const now = new Date();
-    const dateGeneration = now.toLocaleDateString();
-    const timeGeneration = now.toLocaleTimeString();
-
-    doc.setFontSize(9);
-    doc.setTextColor(0, 0, 0);
-    doc.text(`Data de Geração: ${dateGeneration} ${timeGeneration} — NotesApp V1.0.0`, 14, cardY + cardHeight + 10);
-
-    // ✅ Export
-    doc.save('notes.pdf');
+  const totals = {
+    venda: filteredNotes.reduce((sum, note) => sum + note.venda, 0),
+    percent: filteredNotes.reduce((sum, note) => sum + (note.venda * 0.07), 0),
+    registros: filteredNotes.length
   };
 
+  // Tableau ultra-compact
+  autoTable(doc, {
+    head: [[
+      {content: 'Selo', styles: {fillColor: [44,62,80], textColor: 255, fontSize: 8}},
+      {content: 'Venda', styles: {fillColor: [44,62,80], textColor: 255, fontSize: 8}},
+      {content: 'Local', styles: {fillColor: [44,62,80], textColor: 255, fontSize: 8}}, // Libellé raccourci
+      {content: '7%', styles: {fillColor: [44,62,80], textColor: 255, fontSize: 8}} // Libellé raccourci
+    ]],
+    body: tableData,
+    startY: 20, // Position plus haute
+    margin: {horizontal: margin},
+    styles: {
+      fontSize: 7, // Taille réduite
+      cellPadding: 1.5, // Padding minimal
+      minCellHeight: 5 // Hauteur de ligne réduite
+    },
+    columnStyles: {
+      0: {halign: 'center', cellWidth: 15},
+      1: {halign: 'right', cellWidth: 25},
+      2: {halign: 'left', cellWidth: 'wrap'}, 
+      3: {halign: 'right', cellWidth: 20}
+    },
+    didDrawPage: () => {
+      // Bloque la pagination multiple
+      if (doc.getNumberOfPages() > 1) {
+        doc.deletePage(2);
+      }
+    }
+  });
 
+  // ========== TOTAUX EN BAS DE PAGE ==========
+  const finalY = Math.min((doc as any).lastAutoTable.finalY + 3, pageHeight - 15);
+  
+  // Style des totaux
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(44, 62, 80);
+  doc.setFontSize(9); // Taille réduite
 
+  // Ligne de séparation
+  doc.setDrawColor(200, 200, 200);
+  doc.line(margin, finalY, pageWidth - margin, finalY);
+
+  // Affichage compact sur une seule ligne
+  const totalsText = [
+    `Total Vendas: ${totals.venda.toLocaleString('pt-PT')} KZ`,
+    `7% Vendas: ${totals.percent.toLocaleString('pt-PT', {minimumFractionDigits: 2})} KZ`,
+    `Registros: ${totals.registros}`
+  ].join("   |   ");
+
+  doc.text(totalsText, pageWidth/2, finalY + 6, {align: "center"});
+
+  // ========== PIED DE PAGE MINIMAL ==========
+  doc.setFontSize(6);
+  doc.setTextColor(100, 100, 100);
+  doc.text('Sistema de Gestão - v1.0', pageWidth/2, pageHeight-5, {align: "center"});
+
+  doc.save(`relatorio_${new Date().toISOString().slice(0,10)}.pdf`);
+};
 
 
   return (

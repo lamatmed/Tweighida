@@ -97,33 +97,18 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
   const generatePDF = () => {
     const doc = new jsPDF();
 
-    // ✅ Infos de l’entreprise
+    // ✅ En-tête
     const companyName = "TWEYIGHIDA COMERCIAL LDA";
     const companyAddress = "NIF : 5417208523";
-    const title = "Tabela de Notas";
 
-    // ✅ Dimensions de la carte d'en-tête
-    const headerX = 12;
-    const headerY = 10;
-    const headerWidth = 186;
-    const headerHeight = 25;
-
-    // ✅ Card fond + bordure
-    doc.setFillColor(245, 245, 245); // Gris clair
-    doc.setDrawColor(200); // Bordure gris clair
-    doc.roundedRect(headerX, headerY, headerWidth, headerHeight, 3, 3, 'FD'); // 'F' pour fond, 'D' pour draw
-
-    // ✅ Texte dans la carte d’en-tête
     doc.setFontSize(14);
-    doc.setTextColor(0, 0, 0);
-    doc.text(companyName, 105, headerY + 8, { align: "center" });
-
+    doc.text(companyName, 105, 10, { align: "center" });
     doc.setFontSize(10);
-    doc.text(companyAddress, 105, headerY + 14, { align: "center" });
+    doc.text(companyAddress, 105, 16, { align: "center" });
 
+    // ✅ Titre principal
     doc.setFontSize(12);
-    doc.setTextColor(0, 0, 128);
-    doc.text(title, 105, headerY + 21, { align: "center" });
+    doc.text('Tabela de Notas', 105, 30, { align: "center" });
 
     // ✅ Tableau
     const tableData = filteredNotes.map((note) => [
@@ -139,23 +124,26 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
     autoTable(doc, {
       head: [['Selo', 'Venda', 'Localização', '7% de Venda']],
       body: tableData,
-      startY: headerY + headerHeight + 5, // démarre après la carte d’en-tête
+      startY: 40,
     });
 
     const finalY = (doc as any).lastAutoTable.finalY || 40;
 
-    // ✅ Card Résumé des ventes
+    // ✅ Style "Card"
     const cardX = 12;
     const cardY = finalY + 10;
     const cardWidth = 186;
     const cardHeight = 40;
 
-    doc.setFillColor(245, 245, 245); // Gris clair
-    doc.setDrawColor(200);
+    // Fond gris clair
+    doc.setFillColor('gray-2'); // Gris clair
     doc.roundedRect(cardX, cardY, cardWidth, cardHeight, 3, 3, 'F');
+
+    // Bordure grise
     doc.setDrawColor(200);
     doc.roundedRect(cardX, cardY, cardWidth, cardHeight, 3, 3);
 
+    // ✅ Texte à l’intérieur de la card
     doc.setFontSize(11);
     doc.setTextColor(0, 0, 128);
     doc.text("Resumo das Vendas", cardX + 4, cardY + 8);
@@ -166,19 +154,18 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
     doc.text(`• Total 7% de Vendas: ${total7Percent.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} KZ`, cardX + 4, cardY + 24);
     doc.text(`• Total de Classificações: ${filteredNotes.length}`, cardX + 4, cardY + 32);
 
-    // ✅ Date de génération
+    // ✅ Date et version en bas
     const now = new Date();
     const dateGeneration = now.toLocaleDateString();
     const timeGeneration = now.toLocaleTimeString();
 
     doc.setFontSize(9);
-    doc.setTextColor(0, 0, 0);
+    doc.setTextColor(100);
     doc.text(`Data de Geração: ${dateGeneration} ${timeGeneration} — NotesApp V1.0.0`, 14, cardY + cardHeight + 10);
 
     // ✅ Export
     doc.save('notes.pdf');
   };
-
 
 
 
