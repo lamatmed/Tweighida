@@ -1,5 +1,5 @@
 import { databases, storage, databaseId, collectionId, bucketId } from '@/utils/appwrite';
-import { ID } from "appwrite";
+import { ID, Query } from "appwrite";
 
 export async function addNote(formData: FormData): Promise<Note> {
     const title = formData.get("title") as string;
@@ -62,10 +62,19 @@ export async function addNote(formData: FormData): Promise<Note> {
 
 export async function getNotesFromAppwrite(): Promise<Note[]> {
     try {
-        const response = await databases.listDocuments(databaseId, collectionId);
-        console.log(response.documents);
+        const response = await databases.listDocuments(
+            databaseId, 
+            collectionId,
+            [
+                // Augmenter la limite à 100 pour s'assurer de récupérer tous les documents
+                Query.limit(100)
+            ]
+        );
+        console.log("Total documents in response:", response.total);
+        console.log("Documents array length:", response.documents.length);
+        console.log("All documents:", response.documents);
 
-        return response.documents.map((doc) => ({
+        const notes = response.documents.map((doc) => ({
             $id: doc.$id,
             $createdAt: doc.$createdAt,
             content: doc.content,
@@ -73,6 +82,9 @@ export async function getNotesFromAppwrite(): Promise<Note[]> {
             venda: doc.venda,
             pdfurl: doc.pdfurl
         }));
+
+        console.log("Mapped notes length:", notes.length);
+        return notes;
     } catch (error) {
         console.error("Erreur lors de la récupération des notes :", error);
         return [];

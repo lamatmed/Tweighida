@@ -20,7 +20,7 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
   // Pagination et recherche
   const [searchQuery, setSearchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
-  const notesPerPage = 1
+  const notesPerPage = 50
 
   useEffect(() => {
     const fetchNotes = async () => {
@@ -90,14 +90,18 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
   }
 
   const filteredNotes = notes.filter((note) => note.title.toLowerCase().includes(searchQuery.toLowerCase()))
+  console.log("Total notes before filtering:", notes.length);
+  console.log("Filtered notes length:", filteredNotes.length);
+  console.log("Search query:", searchQuery);
   const totalPages = Math.ceil(filteredNotes.length / notesPerPage)
   const displayedNotes = filteredNotes.slice((currentPage - 1) * notesPerPage, currentPage * notesPerPage)
+  console.log("Displayed notes length:", displayedNotes.length);
 
 
   const generatePDF = () => {
     const doc = new jsPDF();
 
-    // ✅ Infos de l’entreprise
+    // ✅ Infos de l'entreprise
     const companyName = "TWEYIGHIDA COMERCIAL LDA";
     const companyAddress = "NIF : 5417208523";
     const title = "RELATÓRIO DE VENDAS";
@@ -113,7 +117,7 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
     doc.setDrawColor(200); // Bordure gris clair
     doc.roundedRect(headerX, headerY, headerWidth, headerHeight, 3, 3, 'FD'); // 'F' pour fond, 'D' pour draw
 
-    // ✅ Texte dans la carte d’en-tête
+    // ✅ Texte dans la carte d'en-tête
     doc.setFontSize(14);
     doc.setTextColor(0, 0, 0);
     doc.text(companyName, 105, headerY + 8, { align: "center" });
@@ -139,7 +143,7 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
     autoTable(doc, {
       head: [['Selo', 'Venda', 'Localização', 'Imposto (7%)']],
       body: tableData,
-      startY: headerY + headerHeight + 5, // démarre après la carte d’en-tête
+      startY: headerY + headerHeight + 5, // démarre après la carte d'en-tête
     });
 
     const finalY = (doc as any).lastAutoTable.finalY || 40;
