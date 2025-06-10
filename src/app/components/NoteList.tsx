@@ -20,7 +20,7 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
   // Pagination et recherche
   const [searchQuery, setSearchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
-  const notesPerPage = 50
+  const notesPerPage = 1  // Afficher 10 notes par page
 
   useEffect(() => {
     const fetchNotes = async () => {
@@ -97,6 +97,10 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
   const displayedNotes = filteredNotes.slice((currentPage - 1) * notesPerPage, currentPage * notesPerPage)
   console.log("Displayed notes length:", displayedNotes.length);
 
+  // Fonction pour changer de page
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber)
+  }
 
   const generatePDF = () => {
     const doc = new jsPDF();
@@ -193,11 +197,11 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
         Total de Classificações : {notes.length}
       </h2>
       <button
-  onClick={generatePDF}
-  className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 flex items-center justify-center gap-2"
->
-  <Printer size={18} /> Gerar Mapa PDF
-</button>
+        onClick={generatePDF}
+        className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 flex items-center justify-center gap-2"
+      >
+        <Printer size={18} /> Gerar Mapa PDF
+      </button>
 
       <input
         type="text"
@@ -208,111 +212,122 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
       />
 
       {loading ? (
-        <div className="flex justify-center items-center ">
-        <div className="animate-spin h-10 w-10 border-t-4 border-blue-500 rounded-full"></div>
-      </div>
-      ) : (
-        <ul className="space-y-4">
-          {displayedNotes.length > 0 ? (
-            displayedNotes.map((note) => (
-              <li key={note.$id} className="p-3 bg-gray-50 rounded-lg shadow">
-                {editingNote === note.$id ? (
-                  <>
-                    <input
-                      type="number"
-                      value={updatedTitle}
-                      onChange={(e) => setUpdatedTitle(e.target.value)}
-                      className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
-                      placeholder="Selo"
-                    />
-
-                  <input
-                      type="number"
-                      value={updatedVenda}
-                      onChange={(e) => setUpdatedVenda(Number(e.target.value))}
-                      className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
-                      placeholder="Venda"
-                    />
-                    <input
-                      type="text"
-                      value={updatedContent}
-                      onChange={(e) => setUpdatedContent(e.target.value)}
-                      className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Editar  localização"
-                    />
-                  </>
-                ) : (
-                  <>
-                    <h3 className="text-lg font-bold text-gray-800">Selo: {note.title}</h3>
-                    <p className="text-green-700 font-bold">Vendas: {note.venda} kz</p>
-                    <p className="text-blue-700 font-bold">Localização: {note.content}</p>
-                    {note.pdfurl && (
-                     <a 
-                     href={note.pdfurl} 
-                     target="_blank" 
-                     rel="noopener noreferrer" 
-                     className="block mt-2 text-blue-500 underline hover:text-blue-700 items-center gap-2"
-                   >
-                     <FileText size={18} /> Descarregar o ficheiro PDF
-                   </a>
-                   
-                    )}
-                  </>
-                )}
-                <div className="flex gap-2 mt-2">
-                  <button
-                    onClick={() => handleDelete(note.$id)}
-                    className={`px-3 py-1 rounded text-white transition ${
-                      loadingDelete === note.$id ? 'bg-gray-400 cursor-not-allowed' : 'bg-red-500 hover:bg-red-600'
-                    }`}
-                    disabled={loadingDelete === note.$id}
-                  >
-                    {loadingDelete === note.$id ? 'Supressão...' : 'Suprimir'}
-                  </button>
-                  {editingNote === note.$id ? (
-                    <button
-                      onClick={() => handleUpdate(note.$id)}
-                      className={`px-3 py-1 rounded text-white transition ${
-                        loadingUpdate === note.$id ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-500 hover:bg-green-600'
-                      }`}
-                      disabled={loadingUpdate === note.$id}
-                    >
-                      {loadingUpdate === note.$id ? 'Atualizar...' : 'Recorde'}
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => {
-                        setEditingNote(note.$id)
-                        setUpdatedTitle(note.title)
-                        setUpdatedVenda(note.venda)
-                        setUpdatedContent(note.content)
-                      }}
-                      className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-                    >
-                      Modificar
-                    </button>
-                  )}
-                </div>
-              </li>
-            ))
-          ) : (
-            <p className="text-center text-gray-500">Não há notas disponíveis.</p>
-          )}
-        </ul>
-      )}
-
-      {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-2 mt-4">
-          <button onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))} disabled={currentPage === 1} className="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400 disabled:opacity-50">
-          Anterior
-          </button>
-          <span className="text-gray-700">
-          Página {currentPage} / {totalPages}
-          </span>
-          <button onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} className="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400 disabled:opacity-50">
-          Seguinte
-          </button>
+        <div className="flex justify-center items-center">
+          <div className="animate-spin h-10 w-10 border-t-4 border-blue-500 rounded-full"></div>
         </div>
+      ) : (
+        <>
+          <ul className="space-y-4">
+            {displayedNotes.length > 0 ? (
+              displayedNotes.map((note) => (
+                <li key={note.$id} className="p-3 bg-gray-50 rounded-lg shadow">
+                  {editingNote === note.$id ? (
+                    <>
+                      <input
+                        type="number"
+                        value={updatedTitle}
+                        onChange={(e) => setUpdatedTitle(e.target.value)}
+                        className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
+                        placeholder="Selo"
+                      />
+
+                    <input
+                        type="number"
+                        value={updatedVenda}
+                        onChange={(e) => setUpdatedVenda(Number(e.target.value))}
+                        className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
+                        placeholder="Venda"
+                      />
+                      <input
+                        type="text"
+                        value={updatedContent}
+                        onChange={(e) => setUpdatedContent(e.target.value)}
+                        className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Editar  localização"
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <h3 className="text-lg font-bold text-gray-800">Selo: {note.title}</h3>
+                      <p className="text-green-700 font-bold">Vendas: {note.venda} kz</p>
+                      <p className="text-blue-700 font-bold">Localização: {note.content}</p>
+                      {note.pdfurl && (
+                       <a 
+                       href={note.pdfurl} 
+                       target="_blank" 
+                       rel="noopener noreferrer" 
+                       className="block mt-2 text-blue-500 underline hover:text-blue-700 items-center gap-2"
+                     >
+                       <FileText size={18} /> Descarregar o ficheiro PDF
+                     </a>
+                     
+                      )}
+                    </>
+                  )}
+                  <div className="flex gap-2 mt-2">
+                    <button
+                      onClick={() => handleDelete(note.$id)}
+                      className={`px-3 py-1 rounded text-white transition ${
+                        loadingDelete === note.$id ? 'bg-gray-400 cursor-not-allowed' : 'bg-red-500 hover:bg-red-600'
+                      }`}
+                      disabled={loadingDelete === note.$id}
+                    >
+                      {loadingDelete === note.$id ? 'Supressão...' : 'Suprimir'}
+                    </button>
+                    {editingNote === note.$id ? (
+                      <button
+                        onClick={() => handleUpdate(note.$id)}
+                        className={`px-3 py-1 rounded text-white transition ${
+                          loadingUpdate === note.$id ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-500 hover:bg-green-600'
+                        }`}
+                        disabled={loadingUpdate === note.$id}
+                      >
+                        {loadingUpdate === note.$id ? 'Atualizar...' : 'Recorde'}
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => {
+                          setEditingNote(note.$id)
+                          setUpdatedTitle(note.title)
+                          setUpdatedVenda(note.venda)
+                          setUpdatedContent(note.content)
+                        }}
+                        className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                      >
+                        Modificar
+                      </button>
+                    )}
+                  </div>
+                </li>
+              ))
+            ) : (
+              <li className="text-center text-gray-500">Nenhuma nota encontrada</li>
+            )}
+          </ul>
+
+          {/* Pagination controls */}
+          {totalPages > 1 && (
+            <div className="flex justify-center gap-2 mt-4">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="px-3 py-1 rounded bg-gray-200 disabled:opacity-50"
+              >
+                Anterior
+              </button>
+              <span className="px-3 py-1">
+                Página {currentPage} de {totalPages}
+              </span>
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="px-3 py-1 rounded bg-gray-200 disabled:opacity-50"
+              >
+                Próximo
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   )

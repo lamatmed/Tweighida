@@ -20,7 +20,7 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
   // Pagination et recherche
   const [searchQuery, setSearchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
-  const notesPerPage = 1
+  const notesPerPage = 1  // Afficher 10 notes par page
 
   useEffect(() => {
     const fetchNotes = async () => {
@@ -90,17 +90,25 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
   }
 
   const filteredNotes = notes.filter((note) => note.title.toLowerCase().includes(searchQuery.toLowerCase()))
+  console.log("Total notes before filtering:", notes.length);
+  console.log("Filtered notes length:", filteredNotes.length);
+  console.log("Search query:", searchQuery);
   const totalPages = Math.ceil(filteredNotes.length / notesPerPage)
   const displayedNotes = filteredNotes.slice((currentPage - 1) * notesPerPage, currentPage * notesPerPage)
+  console.log("Displayed notes length:", displayedNotes.length);
 
+  // Fonction pour changer de page
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber)
+  }
 
   const generatePDF = () => {
     const doc = new jsPDF();
 
-    // ✅ Infos de l’entreprise
+    // ✅ Infos de l'entreprise
     const companyName = "TWEYIGHIDA COMERCIAL LDA";
     const companyAddress = "NIF : 5417208523";
-    const title = "Tabela de Notas";
+    const title = "RELATÓRIO DE VENDAS";
 
     // ✅ Dimensions de la carte d'en-tête
     const headerX = 12;
@@ -113,7 +121,7 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
     doc.setDrawColor(200); // Bordure gris clair
     doc.roundedRect(headerX, headerY, headerWidth, headerHeight, 3, 3, 'FD'); // 'F' pour fond, 'D' pour draw
 
-    // ✅ Texte dans la carte d’en-tête
+    // ✅ Texte dans la carte d'en-tête
     doc.setFontSize(14);
     doc.setTextColor(0, 0, 0);
     doc.text(companyName, 105, headerY + 8, { align: "center" });
@@ -137,9 +145,9 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
     const total7Percent = totalVenda * 0.07;
 
     autoTable(doc, {
-      head: [['Selo', 'Venda', 'Localização', 'IMPOSTO (7%)']],
+      head: [['Selo', 'Venda', 'Localização', 'Imposto (7%)']],
       body: tableData,
-      startY: headerY + headerHeight + 5, // démarre après la carte d’en-tête
+      startY: headerY + headerHeight + 5, // démarre après la carte d'en-tête
     });
 
     const finalY = (doc as any).lastAutoTable.finalY || 40;
@@ -163,7 +171,7 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
     doc.setFontSize(10);
     doc.setTextColor(0, 0, 0);
     doc.text(`• Total de Vendas: ${totalVenda.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} KZ`, cardX + 4, cardY + 16);
-    doc.text(`• Total  (7%): ${total7Percent.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} KZ`, cardX + 4, cardY + 24);
+    doc.text(`• Total imposto (7%): ${total7Percent.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} KZ`, cardX + 4, cardY + 24);
     doc.text(`• Total de Classificações: ${filteredNotes.length}`, cardX + 4, cardY + 32);
 
     // ✅ Date de génération
@@ -173,7 +181,7 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
 
     doc.setFontSize(9);
     doc.setTextColor(0, 0, 0);
-    doc.text(`Data de Geração: ${dateGeneration} ${timeGeneration} — NotesApp V1.0.0`, 14, cardY + cardHeight + 10);
+    doc.text(`Data de Geração: ${dateGeneration} ${timeGeneration} — https://tweighida.vercel.app`, 14, cardY + cardHeight + 10);
 
     // ✅ Export
     doc.save('notes.pdf');
@@ -189,11 +197,11 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
         Total de Classificações : {notes.length}
       </h2>
       <button
-  onClick={generatePDF}
-  className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 flex items-center justify-center gap-2"
->
-  <Printer size={18} /> Gerar Mapa PDF
-</button>
+        onClick={generatePDF}
+        className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 flex items-center justify-center gap-2"
+      >
+        <Printer size={18} /> Gerar Mapa PDF
+      </button>
 
       <input
         type="text"
@@ -204,111 +212,122 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
       />
 
       {loading ? (
-        <div className="flex justify-center items-center ">
-        <div className="animate-spin h-10 w-10 border-t-4 border-blue-500 rounded-full"></div>
-      </div>
-      ) : (
-        <ul className="space-y-4">
-          {displayedNotes.length > 0 ? (
-            displayedNotes.map((note) => (
-              <li key={note.$id} className="p-3 bg-gray-50 rounded-lg shadow">
-                {editingNote === note.$id ? (
-                  <>
-                    <input
-                      type="number"
-                      value={updatedTitle}
-                      onChange={(e) => setUpdatedTitle(e.target.value)}
-                      className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
-                      placeholder="Selo"
-                    />
-
-                  <input
-                      type="number"
-                      value={updatedVenda}
-                      onChange={(e) => setUpdatedVenda(Number(e.target.value))}
-                      className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
-                      placeholder="Venda"
-                    />
-                    <input
-                      type="text"
-                      value={updatedContent}
-                      onChange={(e) => setUpdatedContent(e.target.value)}
-                      className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Editar  localização"
-                    />
-                  </>
-                ) : (
-                  <>
-                    <h3 className="text-lg font-bold text-gray-800">Selo: {note.title}</h3>
-                    <p className="text-green-700 font-bold">Vendas: {note.venda} kz</p>
-                    <p className="text-blue-700 font-bold">Localização: {note.content}</p>
-                    {note.pdfurl && (
-                     <a 
-                     href={note.pdfurl} 
-                     target="_blank" 
-                     rel="noopener noreferrer" 
-                     className="block mt-2 text-blue-500 underline hover:text-blue-700 items-center gap-2"
-                   >
-                     <FileText size={18} /> Descarregar o ficheiro PDF
-                   </a>
-                   
-                    )}
-                  </>
-                )}
-                <div className="flex gap-2 mt-2">
-                  <button
-                    onClick={() => handleDelete(note.$id)}
-                    className={`px-3 py-1 rounded text-white transition ${
-                      loadingDelete === note.$id ? 'bg-gray-400 cursor-not-allowed' : 'bg-red-500 hover:bg-red-600'
-                    }`}
-                    disabled={loadingDelete === note.$id}
-                  >
-                    {loadingDelete === note.$id ? 'Supressão...' : 'Suprimir'}
-                  </button>
-                  {editingNote === note.$id ? (
-                    <button
-                      onClick={() => handleUpdate(note.$id)}
-                      className={`px-3 py-1 rounded text-white transition ${
-                        loadingUpdate === note.$id ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-500 hover:bg-green-600'
-                      }`}
-                      disabled={loadingUpdate === note.$id}
-                    >
-                      {loadingUpdate === note.$id ? 'Atualizar...' : 'Recorde'}
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => {
-                        setEditingNote(note.$id)
-                        setUpdatedTitle(note.title)
-                        setUpdatedVenda(note.venda)
-                        setUpdatedContent(note.content)
-                      }}
-                      className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-                    >
-                      Modificar
-                    </button>
-                  )}
-                </div>
-              </li>
-            ))
-          ) : (
-            <p className="text-center text-gray-500">Não há notas disponíveis.</p>
-          )}
-        </ul>
-      )}
-
-      {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-2 mt-4">
-          <button onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))} disabled={currentPage === 1} className="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400 disabled:opacity-50">
-          Anterior
-          </button>
-          <span className="text-gray-700">
-          Página {currentPage} / {totalPages}
-          </span>
-          <button onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} className="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400 disabled:opacity-50">
-          Seguinte
-          </button>
+        <div className="flex justify-center items-center">
+          <div className="animate-spin h-10 w-10 border-t-4 border-blue-500 rounded-full"></div>
         </div>
+      ) : (
+        <>
+          <ul className="space-y-4">
+            {displayedNotes.length > 0 ? (
+              displayedNotes.map((note) => (
+                <li key={note.$id} className="p-3 bg-gray-50 rounded-lg shadow">
+                  {editingNote === note.$id ? (
+                    <>
+                      <input
+                        type="number"
+                        value={updatedTitle}
+                        onChange={(e) => setUpdatedTitle(e.target.value)}
+                        className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
+                        placeholder="Selo"
+                      />
+
+                    <input
+                        type="number"
+                        value={updatedVenda}
+                        onChange={(e) => setUpdatedVenda(Number(e.target.value))}
+                        className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
+                        placeholder="Venda"
+                      />
+                      <input
+                        type="text"
+                        value={updatedContent}
+                        onChange={(e) => setUpdatedContent(e.target.value)}
+                        className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Editar  localização"
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <h3 className="text-lg font-bold text-gray-800">Selo: {note.title}</h3>
+                      <p className="text-green-700 font-bold">Vendas: {note.venda} kz</p>
+                      <p className="text-blue-700 font-bold">Localização: {note.content}</p>
+                      {note.pdfurl && (
+                       <a 
+                       href={note.pdfurl} 
+                       target="_blank" 
+                       rel="noopener noreferrer" 
+                       className="block mt-2 text-blue-500 underline hover:text-blue-700 items-center gap-2"
+                     >
+                       <FileText size={18} /> Descarregar o ficheiro PDF
+                     </a>
+                     
+                      )}
+                    </>
+                  )}
+                  <div className="flex gap-2 mt-2">
+                    <button
+                      onClick={() => handleDelete(note.$id)}
+                      className={`px-3 py-1 rounded text-white transition ${
+                        loadingDelete === note.$id ? 'bg-gray-400 cursor-not-allowed' : 'bg-red-500 hover:bg-red-600'
+                      }`}
+                      disabled={loadingDelete === note.$id}
+                    >
+                      {loadingDelete === note.$id ? 'Supressão...' : 'Suprimir'}
+                    </button>
+                    {editingNote === note.$id ? (
+                      <button
+                        onClick={() => handleUpdate(note.$id)}
+                        className={`px-3 py-1 rounded text-white transition ${
+                          loadingUpdate === note.$id ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-500 hover:bg-green-600'
+                        }`}
+                        disabled={loadingUpdate === note.$id}
+                      >
+                        {loadingUpdate === note.$id ? 'Atualizar...' : 'Recorde'}
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => {
+                          setEditingNote(note.$id)
+                          setUpdatedTitle(note.title)
+                          setUpdatedVenda(note.venda)
+                          setUpdatedContent(note.content)
+                        }}
+                        className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                      >
+                        Modificar
+                      </button>
+                    )}
+                  </div>
+                </li>
+              ))
+            ) : (
+              <li className="text-center text-gray-500">Nenhuma nota encontrada</li>
+            )}
+          </ul>
+
+          {/* Pagination controls */}
+          {totalPages > 1 && (
+            <div className="flex justify-center gap-2 mt-4">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="px-3 py-1 rounded bg-gray-200 disabled:opacity-50"
+              >
+                Anterior
+              </button>
+              <span className="px-3 py-1">
+                Página {currentPage} de {totalPages}
+              </span>
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="px-3 py-1 rounded bg-gray-200 disabled:opacity-50"
+              >
+                Próximo
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   )
