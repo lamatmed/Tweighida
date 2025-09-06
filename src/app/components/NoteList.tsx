@@ -16,25 +16,25 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
   const [loadingUpdate, setLoadingUpdate] = useState<string | null>(null)
   const [loadingDelete, setLoadingDelete] = useState<string | null>(null)
   const [loading, setLoading] = useState(true) // Indicateur de chargement
-
+const [error, setError] = useState<string | null>(null)
   // Pagination et recherche
   const [searchQuery, setSearchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const notesPerPage = 1  // Afficher 10 notes par page
 
   useEffect(() => {
-    const fetchNotes = async () => {
-      try {
-       
-        const updatedNotes = await getNotesFromAppwrite()
-        setNotes(updatedNotes)
-      } catch (error) {
-        console.error('Erreur lors du rafraîchissement des notes:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
+   const fetchNotes = async () => {
+  try {
+    setError(null);
+    const updatedNotes = await getNotesFromAppwrite()
+    setNotes(updatedNotes)
+  } catch (error) {
+    console.error('Erreur lors du rafraîchissement des notes:', error)
+    setError('Erreur lors du chargement des notes');
+  } finally {
+    setLoading(false)
+  }
+}
     fetchNotes()
     const interval = setInterval(fetchNotes, 5000)
     return () => clearInterval(interval)
@@ -302,9 +302,10 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
               ))
             ) : (
               <li className="text-center text-gray-500">Nenhuma nota encontrada</li>
+
             )}
           </ul>
-
+{error && <div className="text-red-500">{error}</div>}
           {/* Pagination controls */}
           {totalPages > 1 && (
             <div className="flex justify-center gap-2 mt-4">

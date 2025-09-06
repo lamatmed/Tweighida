@@ -23,18 +23,18 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
   const notesPerPage = 1  // Afficher 10 notes par page
 
   useEffect(() => {
-    const fetchNotes = async () => {
-      try {
-       
-        const updatedNotes = await getNotesFromAppwrite()
-        setNotes(updatedNotes)
-      } catch (error) {
-        console.error('Erreur lors du rafraîchissement des notes:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
+   const fetchNotes = async () => {
+  try {
+    setError(null);
+    const updatedNotes = await getNotesFromAppwrite()
+    setNotes(updatedNotes)
+  } catch (error) {
+    console.error('Erreur lors du rafraîchissement des notes:', error)
+    setError('Erreur lors du chargement des notes'!);
+  } finally {
+    setLoading(false)
+  }
+}
     fetchNotes()
     const interval = setInterval(fetchNotes, 5000)
     return () => clearInterval(interval)
@@ -103,116 +103,90 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
   }
 
   const generatePDF = () => {
-  const doc = new jsPDF();
-  const pageWidth = doc.internal.pageSize.getWidth();
-  
-  // ✅ Configuration des couleurs
-  const primaryColor = [0, 51, 102]; // Bleu foncé
-  const secondaryColor = [241, 243, 245]; // Gris clair
-  const accentColor = [0, 128, 0]; // Vert pour les totaux
+    const doc = new jsPDF();
 
-  // ✅ En-tête avec bandeau coloré
-  doc.setFillColor(...primaryColor);
-  doc.rect(0, 0, pageWidth, 20, 'F');
-  
-  // Logo (remplacer par votre image si disponible)
-  doc.setFontSize(28);
-  doc.setTextColor(255, 255, 255);
-  doc.text("TC", 15, 15);
+    // ✅ Infos de l'entreprise
+    const companyName = "TWEYIGHIDA COMERCIAL LDA";
+    const companyAddress = "NIF : 5417208523";
+    const title = "RELATÓRIO DE VENDAS";
 
-  // ✅ Informations de l'entreprise
-  doc.setFontSize(14);
-  doc.text("TWEYIGHIDA COMERCIAL LDA", pageWidth / 2, 15, { align: "center" });
-  
-  doc.setFontSize(10);
-  doc.text("NIF : 5417208523", pageWidth / 2, 22, { align: "center" });
+    // ✅ Dimensions de la carte d'en-tête
+    const headerX = 12;
+    const headerY = 10;
+    const headerWidth = 186;
+    const headerHeight = 25;
 
-  // ✅ Titre principal
-  doc.setFontSize(16);
-  doc.setTextColor(...primaryColor);
-  doc.text("RELATÓRIO DE VENDAS", pageWidth / 2, 35, { align: "center" });
+    // ✅ Card fond + bordure
+    doc.setFillColor(245, 245, 245); // Gris clair
+    doc.setDrawColor(200); // Bordure gris clair
+    doc.roundedRect(headerX, headerY, headerWidth, headerHeight, 3, 3, 'FD'); // 'F' pour fond, 'D' pour draw
 
-  // ✅ Ligne de séparation
-  doc.setDrawColor(200);
-  doc.line(15, 40, pageWidth - 15, 40);
+    // ✅ Texte dans la carte d'en-tête
+    doc.setFontSize(14);
+    doc.setTextColor(0, 0, 0);
+    doc.text(companyName, 105, headerY + 8, { align: "center" });
 
-  // ✅ Tableau avec style amélioré
-  const tableData = filteredNotes.map((note) => [
-    note.title,
-    `${note.venda.toLocaleString('pt-PT')} KZ`,
-    note.content,
-    `${(note.venda * 0.07).toLocaleString('pt-PT', { minimumFractionDigits: 2 })} KZ`
-  ]);
+    doc.setFontSize(10);
+    doc.text(companyAddress, 105, headerY + 14, { align: "center" });
 
-  const totalVenda = filteredNotes.reduce((sum, note) => sum + note.venda, 0);
-  const total7Percent = totalVenda * 0.07;
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 128);
+    doc.text(title, 105, headerY + 21, { align: "center" });
 
-  autoTable(doc, {
-    startY: 45,
-    head: [
-      [
-        { content: 'Selo', styles: { fillColor: primaryColor } },
-        { content: 'Venda', styles: { fillColor: primaryColor } },
-        { content: 'Localização', styles: { fillColor: primaryColor } },
-        { content: 'Imposto (7%)', styles: { fillColor: primaryColor } }
-      ]
-    ],
-    body: tableData,
-    theme: 'grid',
-    headStyles: { textColor: 255, fontStyle: 'bold' },
-    alternateRowStyles: { fillColor: secondaryColor },
-    styles: { cellPadding: 3, fontSize: 10 },
-    margin: { left: 15, right: 15 }
-  });
+    // ✅ Tableau
+    const tableData = filteredNotes.map((note) => [
+      note.title,
+      `${note.venda} KZ`,
+      note.content,
+      `${(note.venda * 0.07).toFixed(2)} KZ`
+    ]);
 
-  const finalY = (doc as any).lastAutoTable.finalY + 5;
+    const totalVenda = filteredNotes.reduce((sum, note) => sum + note.venda, 0);
+    const total7Percent = totalVenda * 0.07;
 
-  // ✅ Section de résumé avec design moderne
-  doc.setFillColor(secondaryColor);
-  doc.roundedRect(15, finalY, pageWidth - 30, 30, 3, 3, 'F');
-  doc.setDrawColor(180);
-  doc.roundedRect(15, finalY, pageWidth - 30, 30, 3, 3);
+    autoTable(doc, {
+      head: [['Selo', 'Venda', 'Localização', 'Imposto (7%)']],
+      body: tableData,
+      startY: headerY + headerHeight + 5, // démarre après la carte d'en-tête
+    });
 
-  doc.setFontSize(12);
-  doc.setTextColor(...primaryColor);
-  doc.setFont(undefined, 'bold');
-  doc.text("RESUMO FINAL", 20, finalY + 8);
+    const finalY = (doc as any).lastAutoTable.finalY || 40;
 
-  // ✅ Données de résumé
-  doc.setFontSize(10);
-  doc.setTextColor(0, 0, 0);
-  doc.setFont(undefined, 'normal');
-  
-  doc.text(`Total de Vendas:`, 20, finalY + 18);
-  doc.text(`${totalVenda.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} KZ`, 70, finalY + 18, { align: "right" });
+    // ✅ Card Résumé des ventes
+    const cardX = 12;
+    const cardY = finalY + 10;
+    const cardWidth = 186;
+    const cardHeight = 40;
 
-  doc.text(`Total Imposto (7%):`, 100, finalY + 18);
-  doc.text(`${total7Percent.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} KZ`, 180, finalY + 18, { align: "right" });
+    doc.setFillColor(245, 245, 245); // Gris clair
+    doc.setDrawColor(200);
+    doc.roundedRect(cardX, cardY, cardWidth, cardHeight, 3, 3, 'F');
+    doc.setDrawColor(200);
+    doc.roundedRect(cardX, cardY, cardWidth, cardHeight, 3, 3);
 
-  doc.text(`Classificações:`, 20, finalY + 26);
-  doc.text(`${filteredNotes.length}`, 70, finalY + 26, { align: "right" });
+    doc.setFontSize(11);
+    doc.setTextColor(0, 0, 128);
+    doc.text("Resumo das Vendas", cardX + 4, cardY + 8);
 
-  // ✅ Pied de page professionnel
-  const footerY = finalY + 40;
-  doc.setDrawColor(200);
-  doc.line(15, footerY, pageWidth - 15, footerY);
-  
-  const now = new Date();
-  const dateGeneration = now.toLocaleDateString('pt-PT');
-  const timeGeneration = now.toLocaleTimeString('pt-PT');
+    doc.setFontSize(10);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`• Total de Vendas: ${totalVenda.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} KZ`, cardX + 4, cardY + 16);
+    doc.text(`• Total imposto (7%): ${total7Percent.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} KZ`, cardX + 4, cardY + 24);
+    doc.text(`• Total de Classificações: ${filteredNotes.length}`, cardX + 4, cardY + 32);
 
-  doc.setFontSize(8);
-  doc.setTextColor(100);
-  doc.text(
-    `Gerado em ${dateGeneration} às ${timeGeneration} | ${filteredNotes.length} registos | tweighida.vercel.app`,
-    pageWidth / 2,
-    footerY + 8,
-    { align: "center" }
-  );
+    // ✅ Date de génération
+    const now = new Date();
+    const dateGeneration = now.toLocaleDateString();
+    const timeGeneration = now.toLocaleTimeString();
 
-  // ✅ Export
-  doc.save(`relatorio_vendas_${dateGeneration.replaceAll('/', '-')}.pdf`);
-};
+    doc.setFontSize(9);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Data de Geração: ${dateGeneration} ${timeGeneration} — https://tweighida.vercel.app`, 14, cardY + cardHeight + 10);
+
+    // ✅ Export
+    doc.save('notes.pdf');
+  };
+
 
 
 
@@ -358,3 +332,7 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
     </div>
   )
 }
+function setError(arg0: null) {
+  throw new Error('Function not implemented.')
+}
+

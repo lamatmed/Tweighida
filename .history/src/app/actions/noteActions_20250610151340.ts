@@ -87,7 +87,7 @@ export async function getNotesFromAppwrite(): Promise<Note[]> {
         return notes;
     } catch (error) {
         console.error("Erreur lors de la récupération des notes :", error);
-        throw new Error("Impossible de récupérer les notes"); // ou throw error;
+        return [];
     }
 }
 

@@ -23,18 +23,18 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
   const notesPerPage = 1  // Afficher 10 notes par page
 
   useEffect(() => {
-    const fetchNotes = async () => {
-      try {
-       
-        const updatedNotes = await getNotesFromAppwrite()
-        setNotes(updatedNotes)
-      } catch (error) {
-        console.error('Erreur lors du rafraîchissement des notes:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
+   const fetchNotes = async () => {
+  try {
+    setError(null);
+    const updatedNotes = await getNotesFromAppwrite()
+    setNotes(updatedNotes)
+  } catch (error) {
+    console.error('Erreur lors du rafraîchissement des notes:', error)
+    setError('Erreur lors du chargement des notes');
+  } finally {
+    setLoading(false)
+  }
+}
     fetchNotes()
     const interval = setInterval(fetchNotes, 5000)
     return () => clearInterval(interval)
@@ -168,7 +168,7 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
     doc.setTextColor(0, 0, 128);
     doc.text("Resumo das Vendas", cardX + 4, cardY + 8);
 
-    doc.setFontSize(1);
+    doc.setFontSize(10);
     doc.setTextColor(0, 0, 0);
     doc.text(`• Total de Vendas: ${totalVenda.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} KZ`, cardX + 4, cardY + 16);
     doc.text(`• Total imposto (7%): ${total7Percent.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} KZ`, cardX + 4, cardY + 24);
