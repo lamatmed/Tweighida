@@ -59,12 +59,12 @@ export default function Hero() {
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
           <motion.a
-            href="/notes"
+            href="/demo"
             className="px-8 py-4 text-lg font-semibold bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-3 group"
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.98 }}
           >
-            Vendas <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+            Venda <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
           </motion.a>
           
           <motion.a
