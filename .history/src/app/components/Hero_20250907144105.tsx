@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import Loader from "./Loader";
 import { motion } from "framer-motion";
-import { ArrowRight, Play, MessageCircle, BarChart3, Shield, Users, PhoneCall } from "lucide-react";
+import { ArrowRight, Play, MessageCircle, BarChart3, Shield, Users } from "lucide-react";
 
 export default function Hero() {
   const [loading, setLoading] = useState(true);
@@ -35,7 +35,7 @@ export default function Hero() {
           transition={{ duration: 0.6, ease: 'easeOut' }}
         >
           <BarChart3 size={16} />
-          <span>Solução de gestão empresarial tudo-em-um</span>
+          <span>Solution de gestion d'entreprise tout-en-un</span>
         </motion.div>
         
         <motion.h1
@@ -45,7 +45,7 @@ export default function Hero() {
           transition={{ duration: 0.8, ease: 'easeInOut' }}
         >
           <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Tweighida</span> — 
-          <div className="mt-2">Seu Parceiro em Comércio Digital</div>
+          <div className="mt-2">Votre Partenaire Commerce Digital</div>
         </motion.h1>
         
         <motion.p
@@ -54,7 +54,7 @@ export default function Hero() {
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 1, delay: 0.2, ease: 'easeInOut' }}
         >
-          Otimize sua cadeia de suprimentos, gerencie seus estoques e desenvolva sua presença online com nossas soluções de IA integradas.
+          Optimisez votre chaîne d'approvisionnement, génez vos stocks et développez votre présence en ligne avec nos solutions IA intégrées.
         </motion.p>
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
@@ -64,18 +64,16 @@ export default function Hero() {
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.98 }}
           >
-            Solicitar uma demonstração <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+            Demander une démo <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
           </motion.a>
           
           <motion.a
-            href="https://wa.me/244934808438"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-8 py-4 text-lg font-semibold bg-gradient-to-r from-green-600 to-teal-500 text-white rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-3 group"
+            href="/solutions"
+            className="px-8 py-4 text-lg font-semibold bg-slate-800 border border-slate-700 text-white rounded-xl shadow-lg hover:bg-slate-750 transition-all flex items-center justify-center gap-3"
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.98 }}
           >
-            <MessageCircle size={20} /> WhatsApp
+            <Play size={20} /> Voir la présentation
           </motion.a>
         </div>
         
@@ -90,30 +88,30 @@ export default function Hero() {
             <div className="bg-indigo-700/20 p-3 rounded-lg inline-flex mb-3">
               <Shield size={24} className="text-indigo-400" />
             </div>
-            <h3 className="font-semibold text-lg mb-2">Segurança de dados</h3>
-            <p className="text-slate-400">Proteção avançada para suas informações comerciais sensíveis.</p>
+            <h3 className="font-semibold text-lg mb-2">Sécurité des données</h3>
+            <p className="text-slate-400">Protection avancée pour vos informations commerciales sensibles.</p>
           </div>
           
           <div className="bg-slate-800/40 backdrop-blur-sm p-5 rounded-xl border border-slate-700/30">
             <div className="bg-purple-700/20 p-3 rounded-lg inline-flex mb-3">
               <BarChart3 size={24} className="text-purple-400" />
             </div>
-            <h3 className="font-semibold text-lg mb-2">Análise em tempo real</h3>
-            <p className="text-slate-400">Monitore seu desempenho comercial com painéis intuitivos.</p>
+            <h3 className="font-semibold text-lg mb-2">Analytique en temps réel</h3>
+            <p className="text-slate-400">Surveillez vos performances commerciales avec des tableaux de bord intuitifs.</p>
           </div>
           
           <div className="bg-slate-800/40 backdrop-blur-sm p-5 rounded-xl border border-slate-700/30">
             <div className="bg-cyan-700/20 p-3 rounded-lg inline-flex mb-3">
               <Users size={24} className="text-cyan-400" />
             </div>
-            <h3 className="font-semibold text-lg mb-2">Gestão de equipe</h3>
-            <p className="text-slate-400">Colabore eficazmente com seus parceiros e funcionários.</p>
+            <h3 className="font-semibold text-lg mb-2">Gestion d'équipe</h3>
+            <p className="text-slate-400">Collaborez efficacement avec vos partenaires et employés.</p>
           </div>
         </motion.div>
         
         <div className="mt-6 text-sm text-slate-500">
           <span className="flex items-center justify-center gap-2">
-            <PhoneCall size={16} /> Suporte ao cliente 24/7
+            <MessageCircle size={16} /> Support client 24/7
           </span>
         </div>
       </div>

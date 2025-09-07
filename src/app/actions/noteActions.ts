@@ -81,6 +81,7 @@ export async function getNotesFromAppwrite(): Promise<Note[]> {
             title: doc.title,
             venda: doc.venda,
             pdfurl: doc.pdfurl
+            
         }));
 
         console.log("Mapped notes length:", notes.length);

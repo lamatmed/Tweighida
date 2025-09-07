@@ -13,7 +13,7 @@ export default function Footer() {
               </span>
             </div>
             <p className="text-slate-400 text-sm mb-6 max-w-xs">
-              Soluções inovadoras para transformar sua empresa e otimizar seus processos comerciais com inteligência artificial.
+              Solutions innovantes pour transformer votre entreprise et optimiser vos processus commerciaux avec l'intelligence artificielle.
             </p>
             <div className="flex space-x-4">
               <a
@@ -21,7 +21,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-slate-800 hover:bg-indigo-600 p-3 rounded-lg transition-colors"
-                aria-label="Visite nossa página no Facebook"
+                aria-label="Visitez notre page Facebook"
               >
                 <Facebook size={20} />
               </a>
@@ -30,14 +30,14 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-slate-800 hover:bg-green-600 p-3 rounded-lg transition-colors"
-                aria-label="Entre em contato pelo WhatsApp"
+                aria-label="Contactez-nous sur WhatsApp"
               >
                 <PhoneCall size={20} />
               </a>
               <a
                 href="mailto:contact@tweighida.com"
                 className="bg-slate-800 hover:bg-cyan-600 p-3 rounded-lg transition-colors"
-                aria-label="Envie-nos um email"
+                aria-label="Envoyez-nous un email"
               >
                 <Mail size={20} />
               </a>
@@ -46,33 +46,33 @@ export default function Footer() {
 
           {/* Solutions */}
           <div>
-            <h3 className="font-semibold text-lg mb-6 text-white">Soluções</h3>
+            <h3 className="font-semibold text-lg mb-6 text-white">Solutions</h3>
             <ul className="space-y-3">
-              <li><a href="/solutions/ia" className="text-slate-400 hover:text-indigo-400 text-sm flex items-center gap-2 transition-colors">Inteligência Artificial</a></li>
-              <li><a href="/solutions/gestion" className="text-slate-400 hover:text-indigo-400 text-sm flex items-center gap-2 transition-colors">Gestão de Estoque</a></li>
+              <li><a href="/solutions/ia" className="text-slate-400 hover:text-indigo-400 text-sm flex items-center gap-2 transition-colors">Intelligence Artificielle</a></li>
+              <li><a href="/solutions/gestion" className="text-slate-400 hover:text-indigo-400 text-sm flex items-center gap-2 transition-colors">Gestion de Stock</a></li>
               <li><a href="/solutions/ecommerce" className="text-slate-400 hover:text-indigo-400 text-sm flex items-center gap-2 transition-colors">E-commerce</a></li>
-              <li><a href="/solutions/analytics" className="text-slate-400 hover:text-indigo-400 text-sm flex items-center gap-2 transition-colors">Análises</a></li>
+              <li><a href="/solutions/analytics" className="text-slate-400 hover:text-indigo-400 text-sm flex items-center gap-2 transition-colors">Analytics</a></li>
             </ul>
           </div>
 
-          {/* Empresa */}
+          {/* Entreprise */}
           <div>
-            <h3 className="font-semibold text-lg mb-6 text-white">Empresa</h3>
+            <h3 className="font-semibold text-lg mb-6 text-white">Entreprise</h3>
             <ul className="space-y-3">
-              <li><a href="/about" className="text-slate-400 hover:text-indigo-400 text-sm flex items-center gap-2 transition-colors">Sobre</a></li>
-              <li><a href="/careers" className="text-slate-400 hover:text-indigo-400 text-sm flex items-center gap-2 transition-colors">Carreiras</a></li>
+              <li><a href="/about" className="text-slate-400 hover:text-indigo-400 text-sm flex items-center gap-2 transition-colors">À propos</a></li>
+              <li><a href="/careers" className="text-slate-400 hover:text-indigo-400 text-sm flex items-center gap-2 transition-colors">Carrières</a></li>
               <li><a href="/blog" className="text-slate-400 hover:text-indigo-400 text-sm flex items-center gap-2 transition-colors">Blog</a></li>
-              <li><a href="/contact" className="text-slate-400 hover:text-indigo-400 text-sm flex items-center gap-2 transition-colors">Contato</a></li>
+              <li><a href="/contact" className="text-slate-400 hover:text-indigo-400 text-sm flex items-center gap-2 transition-colors">Contact</a></li>
             </ul>
           </div>
 
           {/* Contact Info */}
           <div>
-            <h3 className="font-semibold text-lg mb-6 text-white">Contato</h3>
+            <h3 className="font-semibold text-lg mb-6 text-white">Contact</h3>
             <div className="space-y-4">
               <div className="flex items-start gap-3">
                 <MapPin size={18} className="text-indigo-400 mt-1 flex-shrink-0" />
-                <p className="text-slate-400 text-sm">Lubango, Huila, Angola</p>
+                <p className="text-slate-400 text-sm">123 Avenue du Commerce, Huila, Angola</p>
               </div>
               <div className="flex items-center gap-3">
                 <PhoneCall size={18} className="text-indigo-400 flex-shrink-0" />
@@ -90,14 +90,14 @@ export default function Footer() {
         <div className="border-t border-slate-700/50 pt-8 mb-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex-1">
-              <h3 className="font-semibold text-lg mb-2 text-white">Mantenha-se informado</h3>
-              <p className="text-slate-400 text-sm">Inscreva-se na nossa newsletter para receber nossas novidades.</p>
+              <h3 className="font-semibold text-lg mb-2 text-white">Restez informé</h3>
+              <p className="text-slate-400 text-sm">Inscrivez-vous à notre newsletter pour recevoir nos actualités.</p>
             </div>
             <div className="flex-1 w-full max-w-md">
               <form className="flex gap-2">
                 <input
                   type="email"
-                  placeholder="Seu email"
+                  placeholder="Votre email"
                   className="bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 flex-1"
                   required
                 />
@@ -105,7 +105,7 @@ export default function Footer() {
                   type="submit"
                   className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-5 py-3 rounded-lg font-medium text-sm hover:shadow-lg transition-shadow flex items-center gap-2"
                 >
-                  Inscrever-se <ArrowRight size={16} />
+                  S'inscrire <ArrowRight size={16} />
                 </button>
               </form>
             </div>
@@ -115,14 +115,14 @@ export default function Footer() {
         {/* Copyright */}
         <div className="border-t border-slate-700/30 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-slate-500 text-sm text-center md:text-left mb-4 md:mb-0">
-            © {new Date().getFullYear()} Tweighida. Todos os direitos reservados.
+            © {new Date().getFullYear()} Tweighida. Tous droits réservés.
           </p>
           <div className="flex items-center gap-6">
             <a href="/privacy" className="text-slate-500 hover:text-indigo-400 text-sm transition-colors">
-              Privacidade
+              Confidentialité
             </a>
             <a href="/terms" className="text-slate-500 hover:text-indigo-400 text-sm transition-colors">
-              Termos de uso
+              Conditions d'utilisation
             </a>
             <a href="/cookies" className="text-slate-500 hover:text-indigo-400 text-sm transition-colors">
               Cookies
