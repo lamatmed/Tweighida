@@ -102,126 +102,91 @@ const [error, setError] = useState<string | null>(null)
     setCurrentPage(pageNumber)
   }
 
-const generatePDF = () => {
-  const doc = new jsPDF();
+  const generatePDF = () => {
+    const doc = new jsPDF();
 
-  // ✅ Infos de l'entreprise
-  const companyName = "TWEYIGHIDA COMERCIAL LDA";
-  const companyAddress = "NIF : 5417208523";
-  const title = "RELATÓRIO DE VENDAS";
+    // ✅ Infos de l'entreprise
+    const companyName = "TWEYIGHIDA COMERCIAL LDA";
+    const companyAddress = "NIF : 5417208523";
+    const title = "RELATÓRIO DE VENDAS";
 
-  // ✅ Dimensions de la carte d'en-tête
-  const headerX = 12;
-  const headerY = 10;
-  const headerWidth = 186;
-  const headerHeight = 25;
+    // ✅ Dimensions de la carte d'en-tête
+    const headerX = 12;
+    const headerY = 10;
+    const headerWidth = 186;
+    const headerHeight = 25;
 
-  // ✅ Card fond + bordure
-  doc.setFillColor(245, 245, 245); // Gris clair
-  doc.setDrawColor(200); // Bordure gris clair
-  doc.roundedRect(headerX, headerY, headerWidth, headerHeight, 3, 3, 'FD'); // 'F' pour fond, 'D' pour draw
+    // ✅ Card fond + bordure
+    doc.setFillColor(245, 245, 245); // Gris clair
+    doc.setDrawColor(200); // Bordure gris clair
+    doc.roundedRect(headerX, headerY, headerWidth, headerHeight, 3, 3, 'FD'); // 'F' pour fond, 'D' pour draw
 
-  // ✅ Texte dans la carte d'en-tête
-  doc.setFontSize(14);
-  doc.setTextColor(0, 0, 0);
-  doc.text(companyName, 105, headerY + 8, { align: "center" });
+    // ✅ Texte dans la carte d'en-tête
+    doc.setFontSize(14);
+    doc.setTextColor(0, 0, 0);
+    doc.text(companyName, 105, headerY + 8, { align: "center" });
 
-  doc.setFontSize(10);
-  doc.text(companyAddress, 105, headerY + 14, { align: "center" });
+    doc.setFontSize(10);
+    doc.text(companyAddress, 105, headerY + 14, { align: "center" });
 
-  doc.setFontSize(12);
-  doc.setTextColor(0, 0, 128);
-  doc.text(title, 105, headerY + 21, { align: "center" });
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 128);
+    doc.text(title, 105, headerY + 21, { align: "center" });
 
-  // ✅ Tableau avec toutes les notes filtrées
-  const tableData = filteredNotes.map((note) => [
+    // ✅ Tableau
+ const tableData = filteredNotes.map((note) => [
     note.title,
-    `${note.venda.toLocaleString('pt-PT')} KZ`,
+    `${note.venda} KZ`,
     note.content,
-    `${(note.venda * 0.07).toLocaleString('pt-PT', { minimumFractionDigits: 2 })} KZ`
+    `${(note.venda * 0.07).toFixed(2)} KZ`
   ]);
 
-  // ✅ Configuration du tableau pour la pagination automatique
-  autoTable(doc, {
-    head: [['Selo', 'Venda', 'Localização', 'Imposto (7%)']],
-    body: tableData,
-    startY: headerY + headerHeight + 5,
-    margin: { top: 20 },
-    styles: { 
-      overflow: 'linebreak',
-      cellPadding: 3,
-      fontSize: 9
-    },
-    headStyles: {
-      fillColor: [0, 0, 128],
-      textColor: 255
-    },
-    alternateRowStyles: {
-      fillColor: [240, 240, 240]
-    },
-    columnStyles: {
-      0: { cellWidth: 30 },
-      1: { cellWidth: 40 },
-      2: { cellWidth: 70 },
-      3: { cellWidth: 40 }
-    },
-    // Gestion de la pagination automatique
-    didDrawPage: function (data) {
-      // Ajouter le numéro de page en bas
-      doc.setFontSize(10);
-      const pageCount = doc.getNumberOfPages();
-      doc.text(
-        `Page ${data.pageNumber} sur ${pageCount}`,
-        doc.internal.pageSize.width / 2,
-        doc.internal.pageSize.height - 10,
-        { align: 'center' }
-      );
-    }
-  });
+    const totalVenda = filteredNotes.reduce((sum, note) => sum + note.venda, 0);
+    const total7Percent = totalVenda * 0.07;
 
-  const finalY = (doc as any).lastAutoTable.finalY || 40;
+    autoTable(doc, {
+      head: [['Selo', 'Venda', 'Localização', 'Imposto (7%)']],
+      body: tableData,
+      startY: headerY + headerHeight + 5, // démarre après la carte d'en-tête
+    });
 
-  // ✅ Card Résumé des ventes
-  const cardX = 12;
-  const cardY = finalY + 10;
-  const cardWidth = 186;
-  const cardHeight = 40;
+    const finalY = (doc as any).lastAutoTable.finalY || 40;
 
-  doc.setFillColor(245, 245, 245);
-  doc.setDrawColor(200);
-  doc.roundedRect(cardX, cardY, cardWidth, cardHeight, 3, 3, 'F');
-  doc.setDrawColor(200);
-  doc.roundedRect(cardX, cardY, cardWidth, cardHeight, 3, 3);
+    // ✅ Card Résumé des ventes
+    const cardX = 12;
+    const cardY = finalY + 10;
+    const cardWidth = 186;
+    const cardHeight = 40;
 
-  doc.setFontSize(11);
-  doc.setTextColor(0, 0, 128);
-  doc.text("Resumo das Vendas", cardX + 4, cardY + 8);
+    doc.setFillColor(245, 245, 245); // Gris clair
+    doc.setDrawColor(200);
+    doc.roundedRect(cardX, cardY, cardWidth, cardHeight, 3, 3, 'F');
+    doc.setDrawColor(200);
+    doc.roundedRect(cardX, cardY, cardWidth, cardHeight, 3, 3);
 
-  const totalVenda = filteredNotes.reduce((sum, note) => sum + note.venda, 0);
-  const total7Percent = totalVenda * 0.07;
+    doc.setFontSize(11);
+    doc.setTextColor(0, 0, 128);
+    doc.text("Resumo das Vendas", cardX + 4, cardY + 8);
 
-  doc.setFontSize(10);
-  doc.setTextColor(0, 0, 0);
-  doc.text(`• Total de Vendas: ${totalVenda.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} KZ`, cardX + 4, cardY + 16);
-  doc.text(`• Total imposto (7%): ${total7Percent.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} KZ`, cardX + 4, cardY + 24);
-  doc.text(`• Total de Classificações: ${filteredNotes.length}`, cardX + 4, cardY + 32);
+    doc.setFontSize(10);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`• Total de Vendas: ${totalVenda.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} KZ`, cardX + 4, cardY + 16);
+    doc.text(`• Total imposto (7%): ${total7Percent.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} KZ`, cardX + 4, cardY + 24);
+    doc.text(`• Total de Classificações: ${filteredNotes.length}`, cardX + 4, cardY + 32);
 
-  // ✅ Date de génération
-  const now = new Date();
-  const dateGeneration = now.toLocaleDateString();
-  const timeGeneration = now.toLocaleTimeString();
+    // ✅ Date de génération
+    const now = new Date();
+    const dateGeneration = now.toLocaleDateString();
+    const timeGeneration = now.toLocaleTimeString();
 
-  doc.setFontSize(9);
-  doc.setTextColor(0, 0, 0);
-  doc.text(
-    `Data de Geração: ${dateGeneration} ${timeGeneration} — https://tweighida.vercel.app`,
-    14,
-    cardY + cardHeight + 10
-  );
+    doc.setFontSize(9);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Data de Geração: ${dateGeneration} ${timeGeneration} — https://tweighida.vercel.app`, 14, cardY + cardHeight + 10);
 
-  // ✅ Export
-  doc.save('relatorio_vendas.pdf');
-};
+    // ✅ Export
+
+    doc.save('notes.pdf');
+  };
 
 
 
