@@ -8,24 +8,7 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen bg-[#f8fafc] pb-20">
-      {/* Premium Header */}
-      <div className="w-full bg-white border-b border-gray-100 py-12 px-4 shadow-sm relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50 rounded-full blur-3xl -mr-32 -mt-32 opacity-60"></div>
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-50 rounded-full blur-3xl -ml-32 -mb-32 opacity-60"></div>
-        
-        <div className="max-w-4xl mx-auto relative z-10 text-center">
-          <div className="inline-flex items-center justify-center p-3 bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-100 mb-6 text-white">
-            <FileTextIcon size={32} />
-          </div>
-          <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight mb-4">
-            Gestão de <span className="text-indigo-600">Vendas</span>
-          </h1>
-          <p className="text-gray-500 text-lg max-w-xl mx-auto">
-            Acompanhe suas classificações e vendas em tempo real com nosso sistema avançado.
-          </p>
-        </div>
-      </div>
-
+      
       {/* Content Container */}
       <main className="max-w-4xl mx-auto mt-12 px-4 space-y-20">
         {/* List Section at the Top */}
