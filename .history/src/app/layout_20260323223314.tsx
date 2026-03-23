@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: "Tweighida comercial LDA",
   description: "App de notes comme archive",
   icons: {
-    icon: "/logo.png", // Remplace par le chemin de ton icône
+    icon: "/.png", // Remplace par le chemin de ton icône
     shortcut: "/logo.png",
     apple: "/logo.png",
   },
