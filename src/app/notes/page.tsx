@@ -3,6 +3,8 @@ import { getNotesFromAppwrite } from "../actions/noteActions";
 import NewNoteForm from "../components/NewNoteForm";
 import NoteList from "../components/NoteList";
 
+export const dynamic = 'force-dynamic';
+
 export default async function Home() {
   const notes: Note[] = await getNotesFromAppwrite()
 
