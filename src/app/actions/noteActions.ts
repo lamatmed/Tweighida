@@ -1,5 +1,20 @@
-import { databases, storage, databaseId, collectionId, bucketId } from '@/utils/appwrite';
-import { ID, Query } from "appwrite";
+'use server'
+
+import { prisma } from '@/lib/prisma';
+import fs from 'fs';
+import path from 'path';
+
+// Mappage du modèle Prisma vers l'interface Note de l'application
+function mapPrismaNote(note: any): Note {
+    return {
+        $id: note.id,
+        $createdAt: note.createdAt.toISOString(),
+        content: note.content,
+        title: note.title,
+        venda: note.venda,
+        pdfurl: note.pdfurl || '',
+    };
+}
 
 export async function addNote(formData: FormData): Promise<Note> {
     const title = formData.get("title") as string;
@@ -11,106 +26,104 @@ export async function addNote(formData: FormData): Promise<Note> {
    
     console.log("Fichier sélectionné :", pdfFile);
 
-    if (pdfFile) {
+    if (pdfFile && pdfFile.name) {
         try {
-            // Upload du fichier dans Appwrite Storage
-            const fileResponse = await storage.createFile(bucketId, ID.unique(), pdfFile);
-            
-            // Récupérer l'URL sécurisée de téléchargement
-            pdfurl = storage.getFileDownload(bucketId, fileResponse.$id);
-
-            // Vérification de la longueur de l'URL
-            if (pdfurl.length > 240) {
-                console.warn("L'URL du fichier dépasse 240 caractères, elle sera tronquée.");
-                pdfurl = pdfurl.substring(0, 100);
+            // Création du dossier d'upload local si nécessaire
+            const uploadDir = path.join(process.cwd(), 'public', 'uploads');
+            if (!fs.existsSync(uploadDir)) {
+                fs.mkdirSync(uploadDir, { recursive: true });
             }
 
-            console.log("Fichier uploadé avec succès :", pdfurl);
+            // Génération d'un nom de fichier unique
+            const filename = `${Date.now()}-${pdfFile.name}`;
+            const filepath = path.join(uploadDir, filename);
+
+            // Conversion du fichier en buffer et écriture
+            const buffer = Buffer.from(await pdfFile.arrayBuffer());
+            await fs.promises.writeFile(filepath, buffer);
+
+            // URL relative pour l'accès public
+            pdfurl = `/uploads/${filename}`;
+            console.log("Fichier uploadé avec succès localement :", pdfurl);
         } catch (error) {
             console.error("Erreur lors de l'upload du fichier :", error);
         }
     }
 
     try {
-        const newNote = {
-            content,
-            title,
-            pdfurl,
-            venda,
-        };
+        const response = await prisma.note.create({
+            data: {
+                content,
+                title,
+                pdfurl,
+                venda,
+            }
+        });
 
-        const response = await databases.createDocument(
-            databaseId,
-            collectionId,
-            ID.unique(),
-            newNote
-        );
-
-        return {
-            $id: response.$id,
-            $createdAt: response.$createdAt,
-            content: response.content,
-            title: response.title,
-            pdfurl: response.pdfurl,
-            venda: response.venda,
-        };
+        return mapPrismaNote(response);
     } catch (error) {
         console.error("Erreur lors de l'ajout de la note :", error);
         throw new Error("Impossible d'ajouter la note");
     }
 }
 
-export async function getNotesFromAppwrite(): Promise<Note[]> {
+export async function getNotes(): Promise<Note[]> {
     try {
-        const response = await databases.listDocuments(
-            databaseId, 
-            collectionId,
-            [
-                // Augmenter la limite à 100 pour s'assurer de récupérer tous les documents
-                Query.limit(100)
-            ]
-        );
-        console.log("Total documents in response:", response.total);
-        console.log("Documents array length:", response.documents.length);
-        console.log("All documents:", response.documents);
+        const response = await prisma.note.findMany({
+            orderBy: {
+                createdAt: 'desc'
+            }
+        });
+        console.log("Total documents in database:", response.length);
 
-        const notes = response.documents.map((doc) => ({
-            $id: doc.$id,
-            $createdAt: doc.$createdAt,
-            content: doc.content,
-            title: doc.title,
-            venda: doc.venda,
-            pdfurl: doc.pdfurl
-            
-        }));
-
-        console.log("Mapped notes length:", notes.length);
-        return notes;
+        return response.map(mapPrismaNote);
     } catch (error) {
         console.error("Erreur lors de la récupération des notes :", error);
-        return []; // Retoune un tableau vide pour éviter de crasher la page
+        return [];
     }
 }
 
+// Conserver getNotesFromAppwrite comme alias pour éviter de casser les imports existants
+export const getNotesFromAppwrite = getNotes;
 
 export async function deleteNote(noteId: string) {
     try {
-        await databases.deleteDocument(databaseId, collectionId, noteId);
+        // Récupérer la note pour savoir si elle a un PDF à supprimer du disque
+        const note = await prisma.note.findUnique({
+            where: { id: noteId }
+        });
+
+        if (note && note.pdfurl && note.pdfurl.startsWith('/uploads/')) {
+            const filename = note.pdfurl.replace('/uploads/', '');
+            const filepath = path.join(process.cwd(), 'public', 'uploads', filename);
+            if (fs.existsSync(filepath)) {
+                fs.unlinkSync(filepath);
+                console.log(`Fichier PDF local supprimé : ${filepath}`);
+            }
+        }
+
+        await prisma.note.delete({
+            where: { id: noteId }
+        });
         console.log(`Note supprimée : ${noteId}`);
     } catch (error) {
         console.error("Erreur lors de la suppression de la note :", error);
     }
 }
 
-export async function updateNote(noteId: string, updatedContent: string, updatedTitle: string,updatedVenda:number) {
+export async function updateNote(noteId: string, updatedContent: string, updatedTitle: string, updatedVenda: number) {
     try {
-        await databases.updateDocument(databaseId, collectionId, noteId, {
-            content: updatedContent,
-            title: updatedTitle,
-            venda: updatedVenda
+        await prisma.note.update({
+            where: { id: noteId },
+            data: {
+                content: updatedContent,
+                title: updatedTitle,
+                venda: updatedVenda
+            }
         });
         console.log(`Note mise à jour : ${noteId}`);
     } catch (error) {
         console.error("Erreur lors de la mise à jour de la note :", error);
     }
 }
+

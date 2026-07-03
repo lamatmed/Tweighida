@@ -1,7 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { deleteNote, updateNote, getNotesFromAppwrite } from '../actions/noteActions'
-import { client } from '@/utils/appwrite'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import { FileText, Printer } from 'lucide-react'
@@ -14,7 +13,8 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
   const [updatedVenda, setUpdatedVenda] = useState<number | "">('')
   const [loadingUpdate, setLoadingUpdate] = useState<string | null>(null)
   const [loadingDelete, setLoadingDelete] = useState<string | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [confirmDeleteNoteId, setConfirmDeleteNoteId] = useState<string | null>(null)
+  const [loading, setLoading] = useState(initialNotes ? false : true)
   const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
@@ -38,27 +38,9 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
     return () => clearInterval(interval)
   }, [])
 
-  useEffect(() => {
-    const channel = `databases.${process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID}.collections.${process.env.NEXT_PUBLIC_APPWRITE_COLLECTION_ID}.documents`
-
-    const unsubscribe = client.subscribe(channel, (response) => {
-      const eventType = response.events[0]
-      const changedNote = response.payload as Note
-
-      setNotes((prevNotes) => {
-        if (eventType.includes('create')) return [changedNote, ...prevNotes]
-        if (eventType.includes('update')) return prevNotes.map((note) => (note.$id === changedNote.$id ? changedNote : note))
-        if (eventType.includes('delete')) return prevNotes.filter((note) => note.$id !== changedNote.$id)
-        return prevNotes
-      })
-    })
-
-    return () => unsubscribe()
-  }, [])
+  // Les mises à jour des données sont gérées par l'intervalle de polling ci-dessus (toutes les 10 secondes)
 
   const handleDelete = async (noteId: string) => {
-    if (!window.confirm('Tem a certeza de que pretende eliminar esta nota?')) return
-
     try {
       setLoadingDelete(noteId)
       await deleteNote(noteId)
@@ -107,111 +89,125 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
   }
 
   const generatePDF = () => {
-    const doc = new jsPDF();
-    const companyName = "TWEYIGHIDA COMERCIAL LDA";
-    const companyAddress = "NIF : 5417208523";
-    const title = "RELATÓRIO DE VENDAS";
+    try {
+      const doc = new jsPDF();
+      const companyName = "TWEYIGHIDA COMERCIAL LDA";
+      const companyAddress = "NIF : 5417208523";
+      const title = "RELATÓRIO DE VENDAS";
 
-    const headerX = 12;
-    const headerY = 10;
-    const headerWidth = 186;
-    const headerHeight = 25;
+      const headerX = 12;
+      const headerY = 10;
+      const headerWidth = 186;
+      const headerHeight = 25;
 
-    doc.setFillColor(245, 245, 245);
-    doc.setDrawColor(200);
-    doc.roundedRect(headerX, headerY, headerWidth, headerHeight, 3, 3, 'FD');
+      doc.setFillColor(245, 245, 245);
+      doc.setDrawColor(200);
+      doc.roundedRect(headerX, headerY, headerWidth, headerHeight, 3, 3, 'FD');
 
-    doc.setFontSize(14);
-    doc.setTextColor(0, 0, 0);
-    doc.text(companyName, 105, headerY + 8, { align: "center" });
+      doc.setFontSize(14);
+      doc.setTextColor(0, 0, 0);
+      doc.text(companyName, 105, headerY + 8, { align: "center" });
 
-    doc.setFontSize(10);
-    doc.text(companyAddress, 105, headerY + 14, { align: "center" });
+      doc.setFontSize(10);
+      doc.text(companyAddress, 105, headerY + 14, { align: "center" });
 
-    doc.setFontSize(12);
-    doc.setTextColor(0, 0, 128);
-    doc.text(title, 105, headerY + 21, { align: "center" });
+      doc.setFontSize(12);
+      doc.setTextColor(0, 0, 128);
+      doc.text(title, 105, headerY + 21, { align: "center" });
 
-    const tableData = filteredNotes.map((note) => [
-      note.title,
-      `${note.venda.toLocaleString('pt-PT')} KZ`,
-      note.content,
-      `${(note.venda * 0.07).toLocaleString('pt-PT', { minimumFractionDigits: 2 })} KZ`
-    ]);
+      const tableData = filteredNotes.map((note) => [
+        note.title,
+        `${(note.venda || 0).toLocaleString('pt-PT')} KZ`,
+        note.content,
+        `${((note.venda || 0) * 0.07).toLocaleString('pt-PT', { minimumFractionDigits: 2 })} KZ`
+      ]);
 
-    autoTable(doc, {
-      head: [['Selo', 'Venda', 'Localização', 'Imposto (7%)']],
-      body: tableData,
-      startY: headerY + headerHeight + 5,
-      margin: { top: 20 },
-      styles: { 
-        overflow: 'linebreak',
-        cellPadding: 3,
-        fontSize: 9
-      },
-      headStyles: {
-        fillColor: [79, 70, 229],
-        textColor: 255
-      },
-      alternateRowStyles: {
-        fillColor: [240, 240, 240]
-      },
-      columnStyles: {
-        0: { cellWidth: 30 },
-        1: { cellWidth: 40 },
-        2: { cellWidth: 70 },
-        3: { cellWidth: 40 }
-      },
-      didDrawPage: function (data) {
-        doc.setFontSize(10);
-        const pageCount = doc.getNumberOfPages();
-        doc.text(
-          `Página ${data.pageNumber} / ${pageCount}`,
-          doc.internal.pageSize.width / 2,
-          doc.internal.pageSize.height - 10,
-          { align: 'center' }
-        );
+      autoTable(doc, {
+        head: [['Selo', 'Venda', 'Localização', 'Imposto (7%)']],
+        body: tableData,
+        startY: headerY + headerHeight + 5,
+        margin: { top: 20 },
+        styles: { 
+          overflow: 'linebreak',
+          cellPadding: 3,
+          fontSize: 9
+        },
+        headStyles: {
+          fillColor: [79, 70, 229],
+          textColor: 255
+        },
+        alternateRowStyles: {
+          fillColor: [240, 240, 240]
+        },
+        columnStyles: {
+          0: { cellWidth: 30 },
+          1: { cellWidth: 40 },
+          2: { cellWidth: 70 },
+          3: { cellWidth: 40 }
+        },
+        didDrawPage: function (data) {
+          doc.setFontSize(10);
+          const pageCount = doc.getNumberOfPages();
+          doc.text(
+            `Página ${data.pageNumber} / ${pageCount}`,
+            doc.internal.pageSize.width / 2,
+            doc.internal.pageSize.height - 10,
+            { align: 'center' }
+          );
+        }
+      });
+
+      const finalY = (doc as any).lastAutoTable.finalY || 40;
+
+      const cardX = 12;
+      const cardY = finalY + 10;
+      const cardWidth = 186;
+      const cardHeight = 40;
+
+      doc.setFillColor(245, 245, 245);
+      doc.setDrawColor(200);
+      doc.roundedRect(cardX, cardY, cardWidth, cardHeight, 3, 3, 'F');
+      doc.roundedRect(cardX, cardY, cardWidth, cardHeight, 3, 3);
+
+      doc.setFontSize(11);
+      doc.setTextColor(0, 0, 128);
+      doc.text("Resumo das Vendas", cardX + 4, cardY + 8);
+
+      const totalVenda = filteredNotes.reduce((sum, note) => sum + (note.venda || 0), 0);
+      const total7Percent = totalVenda * 0.07;
+
+      doc.setFontSize(10);
+      doc.setTextColor(0, 0, 0);
+      doc.text(`• Total de Vendas: ${totalVenda.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} KZ`, cardX + 4, cardY + 16);
+      doc.text(`• Total imposto (7%): ${total7Percent.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} KZ`, cardX + 4, cardY + 24);
+      doc.text(`• Total de Classificações: ${filteredNotes.length}`, cardX + 4, cardY + 32);
+
+      const now = new Date();
+      const dateGeneration = now.toLocaleDateString();
+      const timeGeneration = now.toLocaleTimeString();
+
+      doc.setFontSize(9);
+      doc.setTextColor(0, 0, 0);
+      doc.text(
+        `Data de Geração: ${dateGeneration} ${timeGeneration} — https://tweighida.vercel.app`,
+        14,
+        cardY + cardHeight + 10
+      );
+
+      // 1. Tenter d'ouvrir le PDF dans un nouvel onglet (idéal pour prévisualisation et si les téléchargements sont bloqués)
+      try {
+        const pdfUrl = doc.output('bloburl');
+        window.open(pdfUrl, '_blank');
+      } catch (openError) {
+        console.warn("L'ouverture dans un nouvel onglet a été bloquée par le navigateur :", openError);
       }
-    });
 
-    const finalY = (doc as any).lastAutoTable.finalY || 40;
-
-    const cardX = 12;
-    const cardY = finalY + 10;
-    const cardWidth = 186;
-    const cardHeight = 40;
-
-    doc.setFillColor(245, 245, 245);
-    doc.setDrawColor(200);
-    doc.roundedRect(cardX, cardY, cardWidth, cardHeight, 3, 3, 'F');
-    doc.roundedRect(cardX, cardY, cardWidth, cardHeight, 3, 3);
-
-    doc.setFontSize(11);
-    doc.setTextColor(0, 0, 128);
-    doc.text("Resumo das Vendas", cardX + 4, cardY + 8);
-
-    const totalVenda = filteredNotes.reduce((sum, note) => sum + note.venda, 0);
-    const total7Percent = totalVenda * 0.07;
-
-    doc.setFontSize(10);
-    doc.setTextColor(0, 0, 0);
-    doc.text(`• Total de Vendas: ${totalVenda.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} KZ`, cardX + 4, cardY + 16);
-    doc.text(`• Total imposto (7%): ${total7Percent.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} KZ`, cardX + 4, cardY + 24);
-    doc.text(`• Total de Classificações: ${filteredNotes.length}`, cardX + 4, cardY + 32);
-
-    const now = new Date();
-    const dateGeneration = now.toLocaleDateString();
-    const timeGeneration = now.toLocaleTimeString();
-
-    doc.setFontSize(9);
-    doc.setTextColor(0, 0, 0);
-    doc.text(
-      `Data de Geração: ${dateGeneration} ${timeGeneration} — https://tweighida.vercel.app`,
-      14,
-      cardY + cardHeight + 10
-    );
-
-    doc.save('relatorio_vendas.pdf');
+      // 2. Lancer le téléchargement du fichier PDF
+      doc.save('relatorio_vendas.pdf');
+    } catch (error) {
+      console.error("Erreur lors de la génération du PDF :", error);
+      alert("Ocorreu um erro ao gerar o PDF. Por favor, tente novamente.");
+    }
   };
 
   return (
@@ -336,10 +332,34 @@ export default function NoteList({ initialNotes }: { initialNotes: Note[] }) {
                           {loadingUpdate === note.$id ? 'A guardar...' : 'Guardar Alterações'}
                         </button>
                       </>
+                    ) : confirmDeleteNoteId === note.$id ? (
+                      <>
+                        <span className="text-sm text-rose-600 font-bold flex items-center mr-auto px-2">
+                          Confirmar eliminação?
+                        </span>
+                        <button
+                          onClick={() => setConfirmDeleteNoteId(null)}
+                          className="w-full sm:w-auto px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-xl transition-all text-sm font-medium border border-gray-100 sm:border-none"
+                        >
+                          Não
+                        </button>
+                        <button
+                          onClick={() => {
+                            setConfirmDeleteNoteId(null);
+                            handleDelete(note.$id);
+                          }}
+                          className={`w-full sm:w-auto px-6 py-2 bg-rose-600 text-white rounded-xl hover:bg-rose-700 transition-all text-sm font-medium shadow-sm ${
+                            loadingDelete === note.$id ? 'bg-rose-300 cursor-not-allowed' : ''
+                          }`}
+                          disabled={loadingDelete === note.$id}
+                        >
+                          {loadingDelete === note.$id ? 'A eliminar...' : 'Sim, eliminar'}
+                        </button>
+                      </>
                     ) : (
                       <>
                         <button
-                          onClick={() => handleDelete(note.$id)}
+                          onClick={() => setConfirmDeleteNoteId(note.$id)}
                           className={`flex items-center justify-center gap-1.5 w-full sm:w-auto px-4 py-3 sm:py-2 rounded-xl text-sm font-medium transition-all ${
                             loadingDelete === note.$id ? 'bg-gray-100 text-gray-400' : 'text-rose-600 hover:bg-rose-50 border border-rose-50 sm:border-none'
                           }`}

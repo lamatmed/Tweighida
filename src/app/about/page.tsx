@@ -67,7 +67,7 @@ export default function About() {
                   {[
                     "Gestão de vendas e stock em tempo real",
                     "Relatórios analíticos automatizados (PDF)",
-                    "Segurança de dados enterprise com Appwrite",
+                    "Segurança de dados enterprise com MongoDB",
                     "Interface moderna, fluída e responsiva"
                   ].map((item, i) => (
                     <li key={i} className="flex items-start gap-3 text-slate-600 font-medium">

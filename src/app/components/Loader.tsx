@@ -1,89 +1,23 @@
-
 import React from 'react';
-import styled from 'styled-components';
 
 const Loader = () => {
   return (
-    <StyledWrapper>
-      <div className="loader" />
-    </StyledWrapper>
+    <div className="fixed inset-0 flex items-center justify-center bg-[#080b14]/90 backdrop-blur-sm z-50">
+      <div className="relative flex items-center justify-center">
+        {/* Anneau extérieur en pointillé (rotation lente) */}
+        <div className="absolute w-24 h-24 rounded-full border-4 border-dashed border-indigo-500/30 animate-spin" style={{ animationDuration: '6s' }}></div>
+        
+        {/* Anneau principal (rotation normale) */}
+        <div className="absolute w-20 h-20 rounded-full border-4 border-indigo-600 border-t-transparent animate-spin"></div>
+        
+        {/* Anneau intérieur (rotation inverse et rapide) */}
+        <div className="absolute w-14 h-14 rounded-full border-4 border-purple-500 border-b-transparent animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
+        
+        {/* Noyau lumineux central */}
+        <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 shadow-[0_0_20px_rgba(99,102,241,0.5)] animate-pulse"></div>
+      </div>
+    </div>
   );
 }
-
-const StyledWrapper = styled.div`
-  .loader {
-   position: relative;
-   width: 2.5em;
-   height: 2.5em;
-   transform: rotate(165deg);
-  }
-
-  .loader:before, .loader:after {
-   content: "";
-   position: absolute;
-   top: 50%;
-   left: 50%;
-   display: block;
-   width: 0.5em;
-   height: 0.5em;
-   border-radius: 0.25em;
-   transform: translate(-50%, -50%);
-  }
-
-  .loader:before {
-   animation: before8 2s infinite;
-  }
-
-  .loader:after {
-   animation: after6 2s infinite;
-  }
-
-  @keyframes before8 {
-   0% {
-    width: 0.5em;
-    box-shadow: 1em -0.5em rgba(225, 20, 98, 0.75), -1em 0.5em rgba(111, 202, 220, 0.75);
-   }
-
-   35% {
-    width: 2.5em;
-    box-shadow: 0 -0.5em rgba(225, 20, 98, 0.75), 0 0.5em rgba(111, 202, 220, 0.75);
-   }
-
-   70% {
-    width: 0.5em;
-    box-shadow: -1em -0.5em rgba(225, 20, 98, 0.75), 1em 0.5em rgba(111, 202, 220, 0.75);
-   }
-
-   100% {
-    box-shadow: 1em -0.5em rgba(225, 20, 98, 0.75), -1em 0.5em rgba(111, 202, 220, 0.75);
-   }
-  }
-
-  @keyframes after6 {
-   0% {
-    height: 0.5em;
-    box-shadow: 0.5em 1em rgba(61, 184, 143, 0.75), -0.5em -1em rgba(233, 169, 32, 0.75);
-   }
-
-   35% {
-    height: 2.5em;
-    box-shadow: 0.5em 0 rgba(61, 184, 143, 0.75), -0.5em 0 rgba(233, 169, 32, 0.75);
-   }
-
-   70% {
-    height: 0.5em;
-    box-shadow: 0.5em -1em rgba(61, 184, 143, 0.75), -0.5em 1em rgba(233, 169, 32, 0.75);
-   }
-
-   100% {
-    box-shadow: 0.5em 1em rgba(61, 184, 143, 0.75), -0.5em -1em rgba(233, 169, 32, 0.75);
-   }
-  }
-
-  .loader {
-   position: absolute;
-   top: calc(50% - 1.25em);
-   left: calc(50% - 1.25em);
-  }`;
 
 export default Loader;

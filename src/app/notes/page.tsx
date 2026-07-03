@@ -12,8 +12,13 @@ export default async function Home() {
     <div className="min-h-screen bg-[#f8fafc] pb-20">
       
       {/* Content Container */}
-      <main className="max-w-4xl mx-auto mt-12 px-4 space-y-20">
-        {/* List Section at the Top */}
+      <main className="max-w-4xl mx-auto mt-12 px-4 space-y-12">
+        {/* Registration Section at the Top */}
+        <section className="pb-8 border-b border-gray-100">
+          <NewNoteForm />
+        </section>
+        
+        {/* List Section at the Bottom */}
         <section className="relative">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10">
             <div className="flex items-center gap-3">
@@ -25,11 +30,6 @@ export default async function Home() {
             </div>
           </div>
           <NoteList initialNotes={notes} />
-        </section>
-        
-        {/* Registration Section at the Bottom */}
-        <section className="pt-12 border-t border-gray-100">
-          <NewNoteForm />
         </section>
       </main>
     </div>
